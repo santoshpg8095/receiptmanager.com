@@ -1,0 +1,8 @@
+{
+  "short_name": "PG Receipts",
+  "name": "PG Receipt Management System",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#3B82F6",
+  "background_color": "#ffffff"
+}
