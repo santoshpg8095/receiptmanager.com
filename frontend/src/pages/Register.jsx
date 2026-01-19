@@ -1,10 +1,74 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FaUser, FaEnvelope, FaLock, FaBuilding, FaMapMarkerAlt, FaPhone, FaReceipt, FaEye, FaEyeSlash, FaCheck, FaChevronRight, FaShieldAlt, FaGem, FaQrcode, FaFileInvoice, FaChartLine, FaBell } from 'react-icons/fa';
+import { 
+  FaUser, FaEnvelope, FaLock, FaMapMarkerAlt, FaPhone, 
+  FaReceipt, FaEye, FaEyeSlash, FaCheck, FaChevronRight, 
+  FaShieldAlt, FaGem, FaQrcode, FaFileInvoice, FaChartLine, 
+  FaBell 
+} from 'react-icons/fa';
 import { GiTakeMyMoney, GiHouse } from 'react-icons/gi';
 import toast from 'react-hot-toast';
 import Navbar from '../components/Navbar';
+
+// Moved InputField outside the component to prevent re-renders
+const InputField = React.memo(({ 
+  label, 
+  name, 
+  type = 'text', 
+  icon, 
+  value,
+  onChange,
+  required = false, 
+  placeholder,
+  maxLength,
+  className = '',
+  error,
+  ...props 
+}) => {
+  return (
+    <div className="mb-4">
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          {icon}
+        </div>
+        <input
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+          required={required}
+          maxLength={maxLength}
+          className={`
+            block w-full pl-10 pr-3 py-3 border rounded-xl 
+            focus:ring-2 focus:ring-offset-1 transition-all duration-200
+            ${error 
+              ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
+              : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+            }
+            ${className}
+          `}
+          placeholder={placeholder}
+          autoComplete="off"
+          {...props}
+        />
+        {error && (
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-red-500">
+            <FaEyeSlash className="w-4 h-4" />
+          </div>
+        )}
+      </div>
+      {error && (
+        <p className="mt-1 text-sm text-red-600">{error}</p>
+      )}
+    </div>
+  );
+});
+
+InputField.displayName = 'InputField';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -17,7 +81,7 @@ const Register = () => {
     pgContact: '',
     gstin: '',
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -27,20 +91,21 @@ const Register = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
+  // Use useCallback for change handler to prevent re-renders
+  const handleChange = React.useCallback((e) => {
     const { name, value } = e.target;
     
-    // Clear error for this field
+    // Clear error for this field when user starts typing
     setFormErrors(prev => ({
       ...prev,
       [name]: ''
     }));
     
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       [name]: value,
-    });
-  };
+    }));
+  }, []);
 
   const validateStep = (step) => {
     const errors = {};
@@ -64,8 +129,12 @@ const Register = () => {
       if (!formData.pgContact) errors.pgContact = 'Contact number is required';
       else if (!/^\d{10}$/.test(formData.pgContact)) errors.pgContact = 'Enter a valid 10-digit number';
       
-      if (formData.gstin && !formData.gstin.match(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/)) {
-        errors.gstin = 'Enter a valid GSTIN format';
+      // GSTIN validation (optional field)
+      if (formData.gstin && formData.gstin.trim() !== '') {
+        const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+        if (!gstinRegex.test(formData.gstin.toUpperCase())) {
+          errors.gstin = 'Enter a valid GSTIN format (e.g., 22AAAAA0000A1Z5)';
+        }
       }
     }
     
@@ -73,9 +142,13 @@ const Register = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const nextStep = () => {
+  const nextStep = (e) => {
+    e?.preventDefault();
     if (validateStep(1)) {
       setCurrentStep(2);
+    } else {
+      // Show toast for errors on step 1
+      toast.error('Please fix the errors before proceeding');
     }
   };
 
@@ -93,53 +166,25 @@ const Register = () => {
     
     setLoading(true);
 
-    // Remove confirmPassword from submission
+    // Remove confirmPassword from submission data
     const { confirmPassword, ...submitData } = formData;
     
-    const result = await register(submitData);
-    
-    if (result.success) {
-      toast.success('🎉 Registration successful! Welcome to PG Receipts');
-      navigate('/dashboard');
-    } else {
-      toast.error(result.error || 'Registration failed');
+    try {
+      const result = await register(submitData);
+      
+      if (result.success) {
+        toast.success('🎉 Registration successful! Welcome to PG Receipts');
+        navigate('/dashboard');
+      } else {
+        toast.error(result.error || 'Registration failed. Please try again.');
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred. Please try again.');
+      console.error('Registration error:', error);
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
-
-  const InputField = ({ label, name, type = 'text', icon, required = false, placeholder, ...props }) => (
-    <div className="mb-4">
-      <label className="block text-sm font-medium text-gray-700 mb-2">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          {icon}
-        </div>
-        <input
-          type={type}
-          name={name}
-          value={formData[name]}
-          onChange={handleChange}
-          required={required}
-          className={`block w-full pl-10 pr-3 py-3 border ${
-            formErrors[name] ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-          } rounded-xl focus:ring-2 focus:ring-offset-1 transition-all duration-200`}
-          placeholder={placeholder}
-          {...props}
-        />
-        {formErrors[name] && (
-          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-red-500">
-            <FaEyeSlash className="w-4 h-4" />
-          </div>
-        )}
-      </div>
-      {formErrors[name] && (
-        <p className="mt-1 text-sm text-red-600">{formErrors[name]}</p>
-      )}
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
@@ -250,15 +295,19 @@ const Register = () => {
               </div>
             </div>
 
-            <form onSubmit={currentStep === 2 ? handleSubmit : (e) => { e.preventDefault(); nextStep(); }}>
+            <form onSubmit={currentStep === 1 ? nextStep : handleSubmit}>
               {currentStep === 1 ? (
                 <div className="space-y-6">
                   <InputField
                     label="Full Name"
                     name="name"
                     icon={<FaUser className="h-5 w-5 text-gray-400" />}
+                    value={formData.name}
+                    onChange={handleChange}
                     required
                     placeholder="John Doe"
+                    autoComplete="name"
+                    error={formErrors.name}
                   />
                   
                   <InputField
@@ -266,8 +315,12 @@ const Register = () => {
                     name="email"
                     type="email"
                     icon={<FaEnvelope className="h-5 w-5 text-gray-400" />}
+                    value={formData.email}
+                    onChange={handleChange}
                     required
                     placeholder="owner@example.com"
+                    autoComplete="email"
+                    error={formErrors.email}
                   />
                   
                   <div className="space-y-4">
@@ -285,15 +338,19 @@ const Register = () => {
                           value={formData.password}
                           onChange={handleChange}
                           required
-                          className={`block w-full pl-10 pr-12 py-3 border ${
-                            formErrors.password ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                          } rounded-xl focus:ring-2 focus:ring-offset-1 transition-all duration-200`}
+                          className={`block w-full pl-10 pr-12 py-3 border rounded-xl focus:ring-2 focus:ring-offset-1 transition-all duration-200 ${
+                            formErrors.password 
+                              ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
+                              : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                          }`}
                           placeholder="Minimum 6 characters"
+                          autoComplete="new-password"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
                           className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                          tabIndex={-1}
                         >
                           {showPassword ? (
                             <FaEyeSlash className="h-5 w-5 text-gray-400" />
@@ -321,15 +378,19 @@ const Register = () => {
                           value={formData.confirmPassword}
                           onChange={handleChange}
                           required
-                          className={`block w-full pl-10 pr-12 py-3 border ${
-                            formErrors.confirmPassword ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                          } rounded-xl focus:ring-2 focus:ring-offset-1 transition-all duration-200`}
+                          className={`block w-full pl-10 pr-12 py-3 border rounded-xl focus:ring-2 focus:ring-offset-1 transition-all duration-200 ${
+                            formErrors.confirmPassword 
+                              ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
+                              : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                          }`}
                           placeholder="Confirm your password"
+                          autoComplete="new-password"
                         />
                         <button
                           type="button"
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                           className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                          tabIndex={-1}
                         >
                           {showConfirmPassword ? (
                             <FaEyeSlash className="h-5 w-5 text-gray-400" />
@@ -377,16 +438,22 @@ const Register = () => {
                     label="PG Name"
                     name="pgName"
                     icon={<GiHouse className="h-5 w-5 text-gray-400" />}
+                    value={formData.pgName}
+                    onChange={handleChange}
                     required
                     placeholder="Sunshine PG"
+                    error={formErrors.pgName}
                   />
                   
                   <InputField
                     label="PG Address"
                     name="pgAddress"
                     icon={<FaMapMarkerAlt className="h-5 w-5 text-gray-400" />}
+                    value={formData.pgAddress}
+                    onChange={handleChange}
                     required
                     placeholder="Street, City, State, PIN"
+                    error={formErrors.pgAddress}
                   />
                   
                   <InputField
@@ -394,17 +461,24 @@ const Register = () => {
                     name="pgContact"
                     type="tel"
                     icon={<FaPhone className="h-5 w-5 text-gray-400" />}
+                    value={formData.pgContact}
+                    onChange={handleChange}
                     required
                     placeholder="9876543210"
                     maxLength={10}
+                    inputMode="numeric"
+                    error={formErrors.pgContact}
                   />
                   
                   <InputField
                     label="GSTIN (Optional)"
                     name="gstin"
                     icon={<FaGem className="h-5 w-5 text-gray-400" />}
+                    value={formData.gstin}
+                    onChange={handleChange}
                     placeholder="22AAAAA0000A1Z5"
                     className="uppercase"
+                    error={formErrors.gstin}
                   />
                   
                   <div className="flex gap-3">

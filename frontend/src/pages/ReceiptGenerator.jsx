@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/api';
 import ReceiptPreview from '../components/ReceiptPreview';
@@ -23,6 +23,47 @@ import {
   FaTimes
 } from 'react-icons/fa';
 
+// Move FormSection outside the main component
+const FormSection = React.memo(({ 
+  title, 
+  icon, 
+  sectionKey, 
+  children, 
+  isRequired = false,
+  expandedSections,
+  toggleSection 
+}) => {
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4">
+      <button
+        onClick={() => toggleSection(sectionKey)}
+        className="w-full px-4 py-3 sm:px-6 sm:py-4 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 transition-colors flex items-center justify-between"
+      >
+        <div className="flex items-center space-x-3">
+          <div className="text-blue-600">{icon}</div>
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+            {title}
+            {isRequired && <span className="text-red-500 ml-1">*</span>}
+          </h3>
+        </div>
+        <div className="text-gray-500">
+          {expandedSections[sectionKey] ? <FaChevronUp /> : <FaChevronDown />}
+        </div>
+      </button>
+      
+      <div className={`transition-all duration-300 ease-in-out ${
+        expandedSections[sectionKey] ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
+      }`}>
+        <div className="p-4 sm:p-6">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+FormSection.displayName = 'FormSection';
+
 const months = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'
@@ -39,6 +80,7 @@ const ReceiptGenerator = () => {
   const [expandedSections, setExpandedSections] = useState({
     tenant: true,
     payment: true,
+    dates: false,
     charges: false,
     balance: false,
     notes: false
@@ -67,9 +109,8 @@ const ReceiptGenerator = () => {
     receivedFrom: '',
     forMonth: `${months[new Date().getMonth()]} ${currentYear}`,
     notes: '',
-    // New date fields
-    monthlyPaymentDate: today, // Default to today
-    paidDate: today // Default to today
+    monthlyPaymentDate: today,
+    paidDate: today
   });
 
   useEffect(() => {
@@ -90,38 +131,35 @@ const ReceiptGenerator = () => {
     }
   }, [formData.amount, formData.securityDeposit, formData.electricityCharges, formData.waterCharges, formData.otherCharges]);
 
-  const toggleSection = (section) => {
+  // Memoize toggleSection function
+  const toggleSection = useCallback((section) => {
     setExpandedSections(prev => ({
       ...prev,
       [section]: !prev[section]
     }));
-  };
+  }, []);
 
-  const handleChange = (e) => {
+  // Memoize handleChange function
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => {
+      const newData = { ...prev, [name]: value };
+      
+      // Auto-update forMonth when month/year changes
+      if (name === 'month' || name === 'year') {
+        newData.forMonth = `${name === 'month' ? value : prev.month} ${name === 'year' ? value : prev.year}`;
+      }
+      
+      // Auto-fill receivedFrom when tenantName changes
+      if (name === 'tenantName') {
+        newData.receivedFrom = value;
+      }
+      
+      return newData;
+    });
+  }, []);
 
-    // Auto-update forMonth when month/year changes
-    if (name === 'month' || name === 'year') {
-      setFormData(prev => ({
-        ...prev,
-        forMonth: `${name === 'month' ? value : prev.month} ${name === 'year' ? value : prev.year}`
-      }));
-    }
-
-    // Auto-fill receivedFrom when tenantName changes
-    if (name === 'tenantName') {
-      setFormData(prev => ({
-        ...prev,
-        receivedFrom: value
-      }));
-    }
-  };
-
-  const calculateTotals = () => {
+  const calculateTotals = useCallback(() => {
     const totalAmount = 
       parseFloat(formData.amount || 0) +
       parseFloat(formData.securityDeposit || 0) +
@@ -134,9 +172,9 @@ const ReceiptGenerator = () => {
     const balanceDue = totalAmount + previousBalance - amountPaid;
 
     return { totalAmount, previousBalance, amountPaid, balanceDue };
-  };
+  }, [formData]);
 
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     if (!formData.tenantName.trim()) {
       toast.error('Please enter tenant name');
       return false;
@@ -180,9 +218,9 @@ const ReceiptGenerator = () => {
     }
     
     return true;
-  };
+  }, [formData]);
 
-  const handlePreview = () => {
+  const handlePreview = useCallback(() => {
     if (!validateForm()) return;
     
     const totals = calculateTotals();
@@ -195,17 +233,15 @@ const ReceiptGenerator = () => {
       verificationHash: 'preview-hash-' + Date.now(),
       qrCode: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNmMGYwZjAiLz48dGV4dCB4PSI1MCIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlFSIENvZGU8L3RleHQ+PC9zdmc+',
       amountInWords: 'Preview Amount in Words',
-      // Ensure date fields are included as Date objects
       monthlyPaymentDate: formData.monthlyPaymentDate,
       paidDate: formData.paidDate
     };
     
-    console.log('Preview receipt data:', receiptData); // Debug log
     setGeneratedReceipt(receiptData);
     setPreviewMode(true);
-  };
+  }, [formData, calculateTotals, validateForm]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     if (!validateForm()) return;
     
     setLoading(true);
@@ -221,12 +257,9 @@ const ReceiptGenerator = () => {
         otherCharges: parseFloat(formData.otherCharges || 0),
         previousBalance: parseFloat(formData.previousBalance || 0),
         amountPaid: parseFloat(formData.amountPaid || totals.totalAmount),
-        // Ensure date fields are sent as strings
         monthlyPaymentDate: formData.monthlyPaymentDate,
         paidDate: formData.paidDate
       };
-
-      console.log('Submitting data:', submitData); // Debug log
 
       const response = await api.post('/receipts', submitData);
       
@@ -263,13 +296,13 @@ const ReceiptGenerator = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [formData, calculateTotals, validateForm, today]);
 
-  const handlePrint = () => {
+  const handlePrint = useCallback(() => {
     window.print();
-  };
+  }, []);
 
-  const handleEmail = async (receipt) => {
+  const handleEmail = useCallback(async (receipt) => {
     try {
       await api.post('/email/send', {
         receiptId: receipt._id,
@@ -279,37 +312,9 @@ const ReceiptGenerator = () => {
     } catch (error) {
       toast.error('Failed to send email');
     }
-  };
+  }, []);
 
   const totals = calculateTotals();
-
-  const FormSection = ({ title, icon, sectionKey, children, isRequired = false }) => (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4">
-      <button
-        onClick={() => toggleSection(sectionKey)}
-        className="w-full px-4 py-3 sm:px-6 sm:py-4 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 transition-colors flex items-center justify-between"
-      >
-        <div className="flex items-center space-x-3">
-          <div className="text-blue-600">{icon}</div>
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900">
-            {title}
-            {isRequired && <span className="text-red-500 ml-1">*</span>}
-          </h3>
-        </div>
-        <div className="text-gray-500">
-          {expandedSections[sectionKey] ? <FaChevronUp /> : <FaChevronDown />}
-        </div>
-      </button>
-      
-      <div className={`transition-all duration-300 ease-in-out ${
-        expandedSections[sectionKey] ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
-      }`}>
-        <div className="p-4 sm:p-6">
-          {children}
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <div className="p-3 sm:p-4 md:p-6">
@@ -356,7 +361,7 @@ const ReceiptGenerator = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-          {/* Form Section - Desktop: 2 columns, Mobile: 1 column */}
+          {/* Form Section */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-xl shadow p-4 sm:p-6">
               {/* Desktop View - Always Visible Sections */}
@@ -553,6 +558,8 @@ const ReceiptGenerator = () => {
                   icon={<FaUser />}
                   sectionKey="tenant"
                   isRequired={true}
+                  expandedSections={expandedSections}
+                  toggleSection={toggleSection}
                 >
                   <div className="space-y-4">
                     <div>
@@ -623,6 +630,8 @@ const ReceiptGenerator = () => {
                   icon={<FaCreditCard />}
                   sectionKey="payment"
                   isRequired={true}
+                  expandedSections={expandedSections}
+                  toggleSection={toggleSection}
                 >
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -715,7 +724,7 @@ const ReceiptGenerator = () => {
                 </FormSection>
               </div>
               
-              {/* Date Fields - Always visible on desktop, collapsible on mobile */}
+              {/* Date Fields */}
               <div className="mt-6 md:mt-8">
                 <div className="hidden md:block">
                   <h3 className="text-base sm:text-lg font-semibold text-gray-900 border-b pb-2 mb-3 sm:mb-4">
@@ -768,6 +777,8 @@ const ReceiptGenerator = () => {
                     title="Payment Dates" 
                     icon={<FaCalendar />}
                     sectionKey="dates"
+                    expandedSections={expandedSections}
+                    toggleSection={toggleSection}
                   >
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
@@ -812,7 +823,7 @@ const ReceiptGenerator = () => {
                 </div>
               </div>
               
-              {/* Additional Charges - Always visible on desktop, collapsible on mobile */}
+              {/* Additional Charges */}
               <div className="mt-6 md:mt-8">
                 <div className="hidden md:block">
                   <h3 className="text-base sm:text-lg font-semibold text-gray-900 border-b pb-2 mb-3 sm:mb-4">
@@ -911,6 +922,8 @@ const ReceiptGenerator = () => {
                     title="Additional Charges" 
                     icon={<FaPlus />}
                     sectionKey="charges"
+                    expandedSections={expandedSections}
+                    toggleSection={toggleSection}
                   >
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                       <div>
@@ -993,7 +1006,7 @@ const ReceiptGenerator = () => {
                 </div>
               </div>
               
-              {/* Balance Details - Always visible on desktop, collapsible on mobile */}
+              {/* Balance Details */}
               <div className="mt-6 md:mt-8">
                 <div className="hidden md:block">
                   <h3 className="text-base sm:text-lg font-semibold text-gray-900 border-b pb-2 mb-3 sm:mb-4">
@@ -1068,6 +1081,8 @@ const ReceiptGenerator = () => {
                     title="Balance & Payment" 
                     icon={<FaCalculator />}
                     sectionKey="balance"
+                    expandedSections={expandedSections}
+                    toggleSection={toggleSection}
                   >
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div>
@@ -1128,7 +1143,7 @@ const ReceiptGenerator = () => {
                 </div>
               </div>
               
-              {/* Notes - Always visible */}
+              {/* Notes */}
               <div className="mt-6 md:mt-8">
                 <div className="hidden md:block">
                   <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
@@ -1150,6 +1165,8 @@ const ReceiptGenerator = () => {
                     title="Additional Notes" 
                     icon={<FaStickyNote />}
                     sectionKey="notes"
+                    expandedSections={expandedSections}
+                    toggleSection={toggleSection}
                   >
                     <textarea
                       name="notes"
@@ -1207,7 +1224,7 @@ const ReceiptGenerator = () => {
             </div>
           </div>
           
-          {/* Summary Card - Always visible on desktop, floating on mobile */}
+          {/* Summary Card - Always visible on desktop */}
           <div className="hidden md:block">
             <div className="bg-white rounded-xl shadow p-4 sm:p-6 sticky top-4 md:top-6">
               <h3 className="text-base sm:text-lg font-semibold text-gray-900 border-b pb-2 mb-3 sm:mb-4">
