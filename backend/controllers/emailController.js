@@ -1,31 +1,21 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const Receipt = require('../models/Receipt');
 const User = require('../models/User');
 const { generateReceiptPDF } = require('../utils/pdfGenerator');
 const AuditLog = require('../models/AuditLog');
 
-// Create reusable transporter with connection pooling
-let transporter;
-const getTransporter = () => {
-    if (!transporter) {
-        transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST,
-            port: process.env.SMTP_PORT,
-            secure: process.env.SMTP_SECURE === 'true',
-            auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS
-            },
-            pool: true,
-            maxConnections: 5,
-            maxMessages: 100
-        });
-        
-        transporter.verify()
-            .then(() => console.log('✅ SMTP connection verified'))
-            .catch(err => console.error('❌ SMTP connection failed:', err));
+// Initialize Resend
+let resendClient;
+const getResendClient = () => {
+    if (!resendClient) {
+        const apiKey = process.env.RESEND_API_KEY;
+        if (!apiKey) {
+            throw new Error('RESEND_API_KEY environment variable is required');
+        }
+        resendClient = new Resend(apiKey);
+        console.log('✅ Resend client initialized');
     }
-    return transporter;
+    return resendClient;
 };
 
 // Validate email address
@@ -34,8 +24,6 @@ const isValidEmail = (email) => {
     return emailRegex.test(email);
 };
 
-// Enhanced professional HTML email template
-// Enhanced professional HTML email template
 const generateProfessionalEmailHTML = (receipt, user, customMessage = null) => {
     const currentYear = new Date().getFullYear();
     const paymentDate = new Date(receipt.createdAt);
@@ -44,599 +32,175 @@ const generateProfessionalEmailHTML = (receipt, user, customMessage = null) => {
         month: 'long',
         year: 'numeric'
     });
-    
-    // Calculate breakdown items
+
     const breakdownItems = [];
     if (receipt.amount > 0) breakdownItems.push({ description: 'Monthly Rent', amount: receipt.amount });
     if (receipt.securityDeposit > 0) breakdownItems.push({ description: 'Security Deposit', amount: receipt.securityDeposit });
     if (receipt.electricityCharges > 0) breakdownItems.push({ description: 'Electricity Charges', amount: receipt.electricityCharges });
     if (receipt.waterCharges > 0) breakdownItems.push({ description: 'Water Charges', amount: receipt.waterCharges });
     if (receipt.otherCharges > 0) breakdownItems.push({ description: 'Other Charges', amount: receipt.otherCharges });
-    
+
+    const breakdownRows = breakdownItems.map(item => `
+        <tr>
+            <td style="padding:10px 0; border-bottom:1px solid #eeeeee; color:#444444; font-size:14px;">${item.description}</td>
+            <td style="padding:10px 0; border-bottom:1px solid #eeeeee; color:#111111; font-weight:bold; text-align:right; font-size:14px;">₹${item.amount.toLocaleString('en-IN')}</td>
+        </tr>
+    `).join('');
+
+    // PG Rules formatted for mobile readability
+    const pgRulesList = [
+        "Valid government ID is mandatory.",
+        "Rent/Deposit must be paid before occupation.",
+        "Rent is strictly non-refundable.",
+        "30-day prior notice required before vacating.",
+        "Full month rent charge if 30-day notice is missed.",
+        "Entry must be before 10:30 PM.",
+        "Guests and overnight stays are not allowed.",
+        "Maintain cleanliness; damages will be charged.",
+        "No extra electrical appliances allowed.",
+        "Management reserves all rights for rule changes."
+    ].map(rule => `
+        <div style="padding:4px 0; font-size:12px; color:#475569; border-bottom:1px solid #f1f5f9;">
+            <span style="color:#f97316; font-weight:bold; margin-right:5px;">•</span> ${rule}
+        </div>
+    `).join('');
+
     return `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Payment Receipt ${receipt.receiptNumber} - ${user.pgName}</title>
-            <style>
-                /* Reset & Base Styles */
-                * {
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
-                }
-                
-                body {
-                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-                    line-height: 1.6;
-                    color: #2d3748;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    min-height: 100vh;
-                    padding: 40px 20px;
-                    -webkit-font-smoothing: antialiased;
-                    -moz-osx-font-smoothing: grayscale;
-                }
-                
-                /* Modern Container */
-                .email-wrapper {
-                    max-width: 800px;
-                    margin: 0 auto;
-                    background: white;
-                    border-radius: 24px;
-                    overflow: hidden;
-                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-                }
-                
-                /* Premium Header */
-                .email-header {
-                    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
-                    color: white;
-                    padding: 50px 40px;
-                    text-align: center;
-                    position: relative;
-                    overflow: hidden;
-                }
-                
-                .header-overlay {
-                    position: absolute;
-                    top: -50%;
-                    right: -50%;
-                    width: 100%;
-                    height: 200%;
-                    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, transparent 70%);
-                    opacity: 0.5;
-                }
-                
-                .logo-container {
-                    position: relative;
-                    z-index: 2;
-                    margin-bottom: 30px;
-                }
-                
-                .pg-logo {
-                    font-size: 42px;
-                    font-weight: 800;
-                    margin-bottom: 8px;
-                    letter-spacing: -0.5px;
-                    background: linear-gradient(to right, #ffffff, #e2e8f0);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    background-clip: text;
-                }
-                
-                .receipt-badge {
-                    display: inline-block;
-                    background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
-                    backdrop-filter: blur(10px);
-                    border: 1px solid rgba(255, 255, 255, 0.3);
-                    padding: 15px 40px;
-                    border-radius: 50px;
-                    font-size: 20px;
-                    font-weight: 700;
-                    letter-spacing: 1px;
-                    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-                }
-                
-                /* Main Content */
-                .email-content {
-                    padding: 50px 40px;
-                    background: #f8fafc;
-                }
-                
-                /* Greeting Section */
-                .greeting-section {
-                    background: white;
-                    padding: 30px;
-                    border-radius: 16px;
-                    margin-bottom: 30px;
-                    border-left: 6px solid #3b82f6;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-                }
-                
-                .greeting-title {
-                    font-size: 28px;
-                    font-weight: 700;
-                    color: #1e293b;
-                    margin-bottom: 15px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                }
-                
-                .greeting-text {
-                    color: #64748b;
-                    line-height: 1.8;
-                    font-size: 16px;
-                }
-                
-                /* Receipt Card */
-                .receipt-card {
-                    background: white;
-                    border-radius: 20px;
-                    padding: 40px;
-                    margin-bottom: 40px;
-                    border: 2px solid #e2e8f0;
-                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-                    position: relative;
-                    overflow: hidden;
-                }
-                
-                .receipt-watermark {
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%) rotate(-45deg);
-                    font-size: 120px;
-                    font-weight: 900;
-                    color: rgba(30, 58, 138, 0.03);
-                    white-space: nowrap;
-                    user-select: none;
-                }
-                
-                .card-header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 30px;
-                    padding-bottom: 20px;
-                    border-bottom: 2px dashed #e2e8f0;
-                    position: relative;
-                    z-index: 1;
-                }
-                
-                .card-title {
-                    font-size: 24px;
-                    font-weight: 700;
-                    color: #1e293b;
-                }
-                
-                .status-badge {
-                    background: linear-gradient(135deg, #10b981, #059669);
-                    color: white;
-                    padding: 8px 20px;
-                    border-radius: 50px;
-                    font-size: 14px;
-                    font-weight: 700;
-                    letter-spacing: 1px;
-                    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-                }
-                
-                /* Amount Display */
-                .amount-display {
-                    text-align: center;
-                    margin: 40px 0;
-                    padding: 40px;
-                    background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%);
-                    border-radius: 20px;
-                    border: 3px solid #3b82f6;
-                    position: relative;
-                    z-index: 1;
-                }
-                
-                .amount-label {
-                    font-size: 16px;
-                    color: #1e40af;
-                    text-transform: uppercase;
-                    letter-spacing: 2px;
-                    margin-bottom: 10px;
-                    font-weight: 600;
-                }
-                
-                .amount-value {
-                    font-size: 48px;
-                    font-weight: 800;
-                    color: #1e3a8a;
-                    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-                }
-                
-                /* Details Grid */
-                .details-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-                    gap: 20px;
-                    margin: 30px 0;
-                    position: relative;
-                    z-index: 1;
-                }
-                
-                .detail-item {
-                    background: #f8fafc;
-                    padding: 20px;
-                    border-radius: 12px;
-                    border: 2px solid #e2e8f0;
-                    transition: all 0.3s ease;
-                }
-                
-                .detail-item:hover {
-                    transform: translateY(-5px);
-                    border-color: #3b82f6;
-                    box-shadow: 0 10px 20px rgba(59, 130, 246, 0.1);
-                }
-                
-                .detail-label {
-                    font-size: 12px;
-                    color: #64748b;
-                    text-transform: uppercase;
-                    letter-spacing: 1px;
-                    margin-bottom: 8px;
-                    font-weight: 600;
-                }
-                
-                .detail-value {
-                    font-size: 18px;
-                    color: #1e293b;
-                    font-weight: 600;
-                }
-                
-                /* Breakdown Table */
-                .breakdown-section {
-                    margin: 40px 0;
-                    position: relative;
-                    z-index: 1;
-                }
-                
-                .section-title {
-                    font-size: 18px;
-                    font-weight: 700;
-                    color: #1e293b;
-                    margin-bottom: 20px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                }
-                
-                .breakdown-table {
-                    width: 100%;
-                    border-collapse: separate;
-                    border-spacing: 0;
-                    background: white;
-                    border-radius: 16px;
-                    overflow: hidden;
-                    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
-                }
-                
-                .breakdown-table th {
-                    background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
-                    padding: 18px;
-                    text-align: left;
-                    font-weight: 700;
-                    color: #334155;
-                    border-bottom: 2px solid #cbd5e1;
-                    font-size: 14px;
-                    text-transform: uppercase;
-                    letter-spacing: 1px;
-                }
-                
-                .breakdown-table td {
-                    padding: 18px;
-                    border-bottom: 1px solid #f1f5f9;
-                    color: #475569;
-                    font-size: 15px;
-                }
-                
-                .breakdown-table tr:last-child td {
-                    border-bottom: none;
-                    font-weight: 700;
-                    color: #1e293b;
-                    background: #f8fafc;
-                }
-                
-                .breakdown-table tr:hover td {
-                    background: #f1f5f9;
-                }
-                
-                .amount-cell {
-                    font-weight: 700;
-                    color: #059669;
-                    text-align: right;
-                }
-                
-                /* Rules & Regulations */
-                .rules-section {
-                    background: linear-gradient(135deg, #fff7ed, #ffedd5);
-                    border-radius: 20px;
-                    padding: 30px;
-                    margin: 40px 0;
-                    border: 2px solid #fb923c;
-                    position: relative;
-                    z-index: 1;
-                }
-                
-                .rules-header {
-                    display: flex;
-                    align-items: center;
-                    gap: 15px;
-                    margin-bottom: 25px;
-                }
-                
-                .rules-title {
-                    font-size: 20px;
-                    font-weight: 700;
-                    color: #9a3412;
-                }
-                
-                .rules-list {
-                    margin-bottom: 20px;
-                }
-                
-                .rule-item {
-                    display: flex;
-                    align-items: flex-start;
-                    gap: 12px;
-                    color: #7c2d12;
-                    font-size: 14px;
-                    line-height: 1.6;
-                    margin-bottom: 12px;
-                }
-                
-                .rule-number {
-                    font-weight: bold;
-                    color: #ea580c;
-                    min-width: 25px;
-                }
-                
-                .rule-text {
-                    flex: 1;
-                }
-                
-                .rule-text strong {
-                    color: #9a3412;
-                }
-                
-                .agreement-text {
-                    text-align: center;
-                    margin-top: 25px;
-                    padding-top: 20px;
-                    border-top: 1px dashed #fb923c;
-                    font-weight: 700;
-                    color: #9a3412;
-                    font-size: 15px;
-                }
-                
-                /* Animations */
-                @keyframes fadeIn {
-                    from { opacity: 0; transform: translateY(20px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                
-                .receipt-card, .greeting-section, .rules-section {
-                    animation: fadeIn 0.6s ease-out;
-                }
-                
-                /* Responsive Design */
-                @media (max-width: 768px) {
-                    body {
-                        padding: 20px 10px;
-                    }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="x-apple-disable-message-reformatting">
+    <title>Payment Receipt</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f7f9; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#f4f7f9;">
+        <tr>
+            <td align="center" style="padding: 15px;">
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:600px; background-color:#ffffff; border-radius:12px; overflow:hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
                     
-                    .email-header, .email-content {
-                        padding: 30px 20px;
-                    }
-                    
-                    .pg-logo {
-                        font-size: 32px;
-                    }
-                    
-                    .receipt-badge {
-                        font-size: 16px;
-                        padding: 12px 30px;
-                    }
-                    
-                    .amount-value {
-                        font-size: 36px;
-                    }
-                    
-                    .details-grid {
-                        grid-template-columns: 1fr;
-                    }
-                    
-                    .card-header {
-                        flex-direction: column;
-                        align-items: flex-start;
-                        gap: 15px;
-                    }
-                }
-            </style>
-        </head>
-        <body>
-            <div class="email-wrapper">
-                <!-- Header -->
-                <div class="email-header">
-                    <div class="header-overlay"></div>
-                    <div class="logo-container">
-                        <h1 class="pg-logo">${user.pgName}</h1>
-                    </div>
-                    <div class="receipt-badge">OFFICIAL PAYMENT RECEIPT</div>
-                </div>
-                
-                <!-- Content -->
-                <div class="email-content">
-                    <!-- Greeting -->
-                    <div class="greeting-section">
-                        <h2 class="greeting-title">
-                            <span style="font-size: 24px;">👋</span> 
-                            Dear ${receipt.tenantName},
-                        </h2>
-                        <p class="greeting-text">
-                            Thank you for your prompt payment. We have successfully processed your payment for 
-                            <strong style="color: #1e40af;">${receipt.forMonth}</strong>. This receipt serves as official confirmation of your payment.
-                        </p>
-                        ${customMessage ? `
-                            <div style="margin-top: 20px; padding: 15px; background: #f0f9ff; border-radius: 8px; border-left: 4px solid #0ea5e9;">
-                                <strong>📝 Note from Management:</strong>
-                                <p style="color: #0369a1; margin-top: 5px;">${customMessage}</p>
-                            </div>
-                        ` : ''}
-                    </div>
-                    
-                    <!-- Receipt Card -->
-                    <div class="receipt-card">
-                              
-                        <div class="card-header">
-                            <h3 class="card-title">PAYMENT SUMMARY</h3>
-                            <div class="status-badge">PAID & CONFIRMED</div>
-                        </div>
-                        
-                        <!-- Amount Display -->
-                        <div class="amount-display">
-                            <div class="amount-label">Total Amount Paid</div>
-                            <div class="amount-value">₹${receipt.amountPaid.toLocaleString('en-IN')}</div>
-                        </div>
-                        
-                        <!-- Details Grid -->
-                        <div class="details-grid">
-                            <div class="detail-item">
-                                <div class="detail-label">Receipt Number</div>
-                                <div class="detail-value">#${receipt.receiptNumber}</div>
-                            </div>
-                            
-                            <div class="detail-item">
-                                <div class="detail-label">Payment Date</div>
-                                <div class="detail-value">${formattedDate}</div>
-                            </div>
-                            
-                            <div class="detail-item">
-                                <div class="detail-label">Payment Method</div>
-                                <div class="detail-value">${receipt.paymentMode.toUpperCase()}</div>
-                            </div>
-                            
-                            <div class="detail-item">
-                                <div class="detail-label">Room Number</div>
-                                <div class="detail-value">${receipt.roomNumber}</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Breakdown Section -->
-                        <div class="breakdown-section">
-                            <div class="section-title">
-                                <span>📊</span> Payment Breakdown
-                            </div>
-                            
-                            ${breakdownItems.length > 0 ? `
-                                <table class="breakdown-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Description</th>
-                                            <th>Amount</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${breakdownItems.map(item => `
-                                            <tr>
-                                                <td>${item.description}</td>
-                                                <td class="amount-cell">₹${item.amount.toLocaleString('en-IN')}</td>
-                                            </tr>
-                                        `).join('')}
-                                        <tr>
-                                            <td><strong>GRAND TOTAL</strong></td>
-                                            <td class="amount-cell"><strong>₹${receipt.totalAmount.toLocaleString('en-IN')}</strong></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                    <tr>
+                        <td align="center" style="background-color:#1e3a8a; padding: 35px 20px;">
+                            <h1 style="color:#ffffff; margin:0; font-size:28px; font-weight:bold;">${user.pgName}</h1>
+                            <div style="display:inline-block; margin-top:15px; padding:6px 15px; background-color:rgba(255,255,255,0.15); border-radius:20px; color:#ffffff; font-size:12px; font-weight:bold; text-transform:uppercase;">Official Receipt</div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding: 25px 25px 0;">
+                            <p style="margin:0; font-size:18px; color:#1e293b; font-weight:bold;">Hello ${receipt.tenantName},</p>
+                            <p style="margin:8px 0 0; color:#64748b; font-size:14px; line-height:1.5;">Payment received for <b>${receipt.forMonth}</b>.</p>
+                            ${customMessage ? `
+                                <div style="margin-top:15px; padding:12px; background-color:#eff6ff; border-left:4px solid #3b82f6; border-radius:4px; font-size:13px; color:#1e40af;">
+                                    <b>Note:</b> ${customMessage}
+                                </div>
                             ` : ''}
-                        </div>
-                    </div>
-                    
-                    <!-- Rules & Regulations -->
-                    <div class="rules-section">
-                        <div class="rules-header">
-                            <span style="font-size: 24px;">📜</span>
-                            <h3 class="rules-title">PG Rules</h3>
-                        </div>
-                        
-                        <div class="rules-list">
-                            <div class="rule-item">
-                                <div class="rule-number">1.</div>
-                                <div class="rule-text">Valid government ID is mandatory at the time of admission.</div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding: 20px 25px; text-align:center; font-size:0;">
+                            <div style="display:inline-block; width:100%; max-width:260px; vertical-align:top; font-size:14px; text-align:left;">
+                                <div style="margin:5px; background-color:#f8fafc; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
+                                    <div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">Receipt Number</div>
+                                    <div style="font-weight:bold; color:#1e3a8a;">#${receipt.receiptNumber}</div>
+                                </div>
                             </div>
-                            
-                            <div class="rule-item">
-                                <div class="rule-number">2.</div>
-                                <div class="rule-text">Rent and security deposit must be paid before occupying the room.</div>
+                            <div style="display:inline-block; width:100%; max-width:260px; vertical-align:top; font-size:14px; text-align:left;">
+                                <div style="margin:5px; background-color:#f8fafc; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
+                                    <div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">Date Paid</div>
+                                    <div style="font-weight:bold; color:#1e3a8a;">${formattedDate}</div>
+                                </div>
                             </div>
-                            
-                            <div class="rule-item">
-                                <div class="rule-number">3.</div>
-                                <div class="rule-text">Rent once paid is non-refundable.</div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding: 0 25px 25px;">
+                            <div style="background-color:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px; padding:20px; text-align:center;">
+                                <span style="display:block; font-size:12px; color:#166534; font-weight:bold; margin-bottom:4px;">TOTAL AMOUNT PAID</span>
+                                <span style="font-size:32px; color:#15803d; font-weight:bold;">₹${receipt.amountPaid.toLocaleString('en-IN')}</span>
                             </div>
-                            
-                            <div class="rule-item">
-                                <div class="rule-number">4.</div>
-                                <div class="rule-text">A 30-day prior notice is required before vacating.</div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding: 0 25px 20px;">
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                ${breakdownRows}
+                                <tr>
+                                    <td style="padding:15px 0; font-weight:bold; color:#111111; font-size:15px;">Grand Total Due</td>
+                                    <td style="padding:15px 0; font-weight:bold; color:#1e3a8a; text-align:right; font-size:15px;">₹${receipt.totalAmount.toLocaleString('en-IN')}</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding: 0 25px 30px;">
+                            <div style="background-color:#fffbf0; padding:20px; border-radius:12px; border:1px solid #fde68a;">
+                                <div style="font-size:14px; color:#92400e; font-weight:bold; margin-bottom:12px; border-bottom:1px solid #fef3c7; padding-bottom:8px;">📜 PG Rules & Regulations</div>
+                                ${pgRulesList}
+                                <div style="margin-top:12px; font-size:11px; color:#b45309; text-align:center; font-style:italic;">By staying, residents agree to follow all the above rules.</div>
                             </div>
-                            
-                            <div class="rule-item">
-                                <div class="rule-number">5.</div>
-                                <div class="rule-text"><strong>If 30 days' prior notice is not given, the resident must pay the full month's rent and the security deposit will not be refunded.</strong></div>
-                            </div>
-                            
-                            <div class="rule-item">
-                                <div class="rule-number">6.</div>
-                                <div class="rule-text">Entry into the PG must be before <strong>10:30 PM</strong>.</div>
-                            </div>
-                            
-                            <div class="rule-item">
-                                <div class="rule-number">7.</div>
-                                <div class="rule-text">Guests and overnight stays are not allowed.</div>
-                            </div>
-                            
-                            <div class="rule-item">
-                                <div class="rule-number">8.</div>
-                                <div class="rule-text">Residents must maintain cleanliness; damages will be charged.</div>
-                            </div>
-                            
-                            <div class="rule-item">
-                                <div class="rule-number">9.</div>
-                                <div class="rule-text">Electrical appliances are not allowed; avoid wastage of electricity and water.</div>
-                            </div>
-                            
-                            <div class="rule-item">
-                                <div class="rule-number">10.</div>
-                                <div class="rule-text">Management reserves the right to change rules and take action for violations.</div>
-                            </div>
-                        </div>
-                        
-                        <div class="agreement-text">
-                            By staying in this PG, residents agree to follow all the above rules.
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </body>
-        </html>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="background-color:#f8fafc; padding:20px; text-align:center; border-top:1px solid #eeeeee;">
+                            <p style="margin:0; font-size:12px; color:#94a3b8;">&copy; ${currentYear} <b>${user.pgName}</b>. All rights reserved.</p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
     `;
 };
 
-// @desc    Send receipt via email
+// Helper function to send email via Resend
+const sendEmailViaResend = async (mailOptions) => {
+    const resend = getResendClient();
+    
+    // Convert nodemailer-style options to Resend format
+    const resendOptions = {
+        from: mailOptions.from,
+        to: mailOptions.to,
+        subject: mailOptions.subject,
+        html: mailOptions.html,
+        text: mailOptions.text,
+        attachments: mailOptions.attachments?.map(attachment => ({
+            filename: attachment.filename,
+            content: attachment.content.toString('base64'),
+            contentType: attachment.contentType
+        })) || [],
+        headers: mailOptions.headers
+    };
+    
+    const { data, error } = await resend.emails.send(resendOptions);
+    
+    if (error) {
+        throw new Error(`Resend error: ${error.message}`);
+    }
+    
+    return {
+        messageId: data.id,
+        response: data
+    };
+};
+
+// @desc    Send receipt via email using Resend
 // @route   POST /api/email/send
 // @access  Private
 const sendReceiptEmail = async (req, res) => {
     try {
         const { receiptId, recipientEmail, subject, customMessage } = req.body;
         
-        console.log('📧 Email sending request received:', { receiptId, recipientEmail });
+        console.log('📧 Email sending request received (Resend):', { receiptId, recipientEmail });
         
         // Validate input
         if (!receiptId) {
@@ -677,7 +241,7 @@ const sendReceiptEmail = async (req, res) => {
         }
         
         // Get user details
-        const user = await User.findById(req.user.id).select('pgName pgAddress pgContact email emailSignature');
+        const user = await User.findById(req.user.id).select('pgName pgAddress pgContact email emailSignature pgTagline');
         
         if (!user) {
             return res.status(404).json({
@@ -689,10 +253,23 @@ const sendReceiptEmail = async (req, res) => {
         console.log('📄 Generating PDF for receipt:', receipt.receiptNumber);
         
         // Generate PDF (QR code removed from PDF generator)
-        const pdfBuffer = await generateReceiptPDF(receipt, user, null); // No QR code
+        const pdfBuffer = await generateReceiptPDF(receipt, user, null);
         
-        // Create transporter
-        const transporter = getTransporter();
+        // Determine sender email - using Resend verified domain or email
+        const senderDomain = process.env.RESEND_VERIFIED_DOMAIN;
+        const senderEmail = process.env.RESEND_FROM_EMAIL;
+        
+        if (!senderDomain && !senderEmail) {
+            throw new Error('Either RESEND_VERIFIED_DOMAIN or RESEND_FROM_EMAIL environment variable must be set');
+        }
+        
+        // Construct from address
+        let fromAddress;
+        if (senderDomain) {
+            fromAddress = `${user.pgName} <no-reply@${senderDomain}>`;
+        } else {
+            fromAddress = `"${user.pgName}" <${senderEmail}>`;
+        }
         
         // Prepare email content
         const emailSubject = subject || `Payment Receipt ${receipt.receiptNumber} - ${user.pgName}`;
@@ -717,20 +294,14 @@ const sendReceiptEmail = async (req, res) => {
             `${user.emailSignature || ''}\n\n` +
             `This is an automated email. Please do not reply directly.`;
         
-        // Generate professional HTML
+        // Generate professional HTML with inline CSS
         const emailHtml = generateProfessionalEmailHTML(receipt, user, customMessage);
         
-        // Determine sender email
-        const senderEmail = process.env.SMTP_FROM || process.env.SMTP_USER;
-        if (!senderEmail) {
-            throw new Error('SMTP_FROM or SMTP_USER environment variable is not set');
-        }
+        console.log('📤 Preparing to send email via Resend to:', emailToSend);
         
-        console.log('📤 Preparing to send email to:', emailToSend);
-        
-        // Send email
+        // Prepare email options for Resend
         const mailOptions = {
-            from: `"${user.pgName}" <${senderEmail}>`,
+            from: fromAddress,
             to: emailToSend,
             subject: emailSubject,
             text: plainText,
@@ -747,9 +318,9 @@ const sendReceiptEmail = async (req, res) => {
             }
         };
         
-        console.log('🚀 Sending email...');
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Email sent successfully:', info.messageId);
+        console.log('🚀 Sending email via Resend...');
+        const info = await sendEmailViaResend(mailOptions);
+        console.log('✅ Email sent successfully via Resend:', info.messageId);
         
         // Update receipt
         receipt.sentViaEmail = true;
@@ -767,7 +338,8 @@ const sendReceiptEmail = async (req, res) => {
                 receiptNumber: receipt.receiptNumber,
                 recipientEmail: emailToSend,
                 messageId: info.messageId,
-                subject: emailSubject
+                subject: emailSubject,
+                provider: 'resend'
             },
             ipAddress: req.ip,
             userAgent: req.get('User-Agent')
@@ -780,25 +352,26 @@ const sendReceiptEmail = async (req, res) => {
                 sentTo: emailToSend,
                 messageId: info.messageId,
                 receiptNumber: receipt.receiptNumber,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                provider: 'resend'
             }
         });
         
     } catch (error) {
-        console.error('❌ Email error:', error.message);
+        console.error('❌ Resend email error:', error.message);
         
         let errorMessage = 'Failed to send email';
         let statusCode = 500;
         
-        if (error.code === 'EAUTH') {
-            errorMessage = 'Email authentication failed. Please check SMTP credentials.';
+        if (error.message.includes('RESEND_API_KEY')) {
+            errorMessage = 'Resend API key is not configured. Please set RESEND_API_KEY environment variable.';
+            statusCode = 500;
+        } else if (error.message.includes('verified domain')) {
+            errorMessage = 'Email sending domain is not verified in Resend. Please verify your domain or use a verified email address.';
+            statusCode = 400;
+        } else if (error.message.includes('authentication')) {
+            errorMessage = 'Resend authentication failed. Please check your API key.';
             statusCode = 401;
-        } else if (error.code === 'ENOTFOUND') {
-            errorMessage = 'SMTP server not found. Please check SMTP host configuration.';
-            statusCode = 503;
-        } else if (error.code === 'ECONNREFUSED') {
-            errorMessage = 'Connection refused by SMTP server.';
-            statusCode = 503;
         }
         
         res.status(statusCode).json({ 
@@ -809,14 +382,14 @@ const sendReceiptEmail = async (req, res) => {
     }
 };
 
-// @desc    Send bulk receipts
+// @desc    Send bulk receipts using Resend
 // @route   POST /api/email/bulk
 // @access  Private
 const sendBulkReceipts = async (req, res) => {
     try {
         const { receiptIds, customMessage } = req.body;
         
-        console.log('📧 Bulk email request received for', receiptIds?.length, 'receipts');
+        console.log('📧 Bulk email request received for', receiptIds?.length, 'receipts (Resend)');
         
         // Validate input
         if (!receiptIds || !Array.isArray(receiptIds) || receiptIds.length === 0) {
@@ -837,7 +410,7 @@ const sendBulkReceipts = async (req, res) => {
         const errors = [];
         
         // Get user details
-        const user = await User.findById(req.user.id).select('pgName pgAddress pgContact email emailSignature');
+        const user = await User.findById(req.user.id).select('pgName pgAddress pgContact email emailSignature pgTagline');
         
         if (!user) {
             return res.status(404).json({
@@ -846,15 +419,22 @@ const sendBulkReceipts = async (req, res) => {
             });
         }
         
-        // Get transporter
-        const transporter = getTransporter();
-        const senderEmail = process.env.SMTP_FROM || process.env.SMTP_USER;
+        // Determine sender email
+        const senderDomain = process.env.RESEND_VERIFIED_DOMAIN;
+        const senderEmail = process.env.RESEND_FROM_EMAIL;
         
-        if (!senderEmail) {
+        if (!senderDomain && !senderEmail) {
             return res.status(500).json({
                 success: false,
-                message: 'SMTP configuration error. Please check environment variables.'
+                message: 'Either RESEND_VERIFIED_DOMAIN or RESEND_FROM_EMAIL environment variable must be set'
             });
+        }
+        
+        let fromAddress;
+        if (senderDomain) {
+            fromAddress = `${user.pgName} <no-reply@${senderDomain}>`;
+        } else {
+            fromAddress = `"${user.pgName}" <${senderEmail}>`;
         }
         
         // Process receipts sequentially
@@ -906,15 +486,18 @@ const sendBulkReceipts = async (req, res) => {
                 // Generate PDF (no QR code)
                 const pdfBuffer = await generateReceiptPDF(receipt, user, null);
                 
-                // Generate HTML
+                // Generate HTML with inline CSS
                 const emailHtml = generateProfessionalEmailHTML(receipt, user, customMessage);
                 
-                // Send email
+                // Prepare plain text
+                const plainText = `Payment receipt #${receipt.receiptNumber} is attached. Please view the HTML version for complete details.`;
+                
+                // Send email via Resend
                 const mailOptions = {
-                    from: `"${user.pgName}" <${senderEmail}>`,
+                    from: fromAddress,
                     to: receipt.tenantEmail,
                     subject: `Payment Receipt ${receipt.receiptNumber} - ${user.pgName}`,
-                    text: `Please view this email in HTML format for better experience.`,
+                    text: plainText,
                     html: emailHtml,
                     attachments: [{
                         filename: `receipt-${receipt.receiptNumber}.pdf`,
@@ -923,7 +506,7 @@ const sendBulkReceipts = async (req, res) => {
                     }]
                 };
                 
-                const info = await transporter.sendMail(mailOptions);
+                const info = await sendEmailViaResend(mailOptions);
                 
                 // Update receipt
                 receipt.sentViaEmail = true;
@@ -940,7 +523,8 @@ const sendBulkReceipts = async (req, res) => {
                         receiptId: receipt._id, 
                         receiptNumber: receipt.receiptNumber,
                         recipientEmail: receipt.tenantEmail,
-                        messageId: info.messageId
+                        messageId: info.messageId,
+                        provider: 'resend'
                     },
                     ipAddress: req.ip,
                     userAgent: req.get('User-Agent')
@@ -954,10 +538,11 @@ const sendBulkReceipts = async (req, res) => {
                     amount: receipt.amountPaid,
                     status: 'sent',
                     messageId: info.messageId,
-                    timestamp: new Date().toISOString()
+                    timestamp: new Date().toISOString(),
+                    provider: 'resend'
                 });
                 
-                // Small delay between emails
+                // Small delay between emails to respect rate limits
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 
             } catch (error) {
@@ -976,7 +561,8 @@ const sendBulkReceipts = async (req, res) => {
                 total: receiptIds.length,
                 sent: results.length,
                 failed: errors.filter(e => e.status !== 'skipped').length,
-                skipped: errors.filter(e => e.status === 'skipped').length
+                skipped: errors.filter(e => e.status === 'skipped').length,
+                provider: 'resend'
             },
             ipAddress: req.ip,
             userAgent: req.get('User-Agent')
@@ -984,7 +570,7 @@ const sendBulkReceipts = async (req, res) => {
         
         const totalAmount = results.reduce((sum, r) => sum + (r.amount || 0), 0);
         
-        console.log(`✅ Bulk email completed: ${results.length} sent, ${errors.length} failed/skipped`);
+        console.log(`✅ Bulk email via Resend completed: ${results.length} sent, ${errors.length} failed/skipped`);
         
         res.json({
             success: true,
@@ -996,7 +582,8 @@ const sendBulkReceipts = async (req, res) => {
                     failed: errors.filter(e => e.status !== 'skipped').length,
                     skipped: errors.filter(e => e.status === 'skipped').length,
                     totalAmount: totalAmount,
-                    successRate: ((results.length / receiptIds.length) * 100).toFixed(1) + '%'
+                    successRate: ((results.length / receiptIds.length) * 100).toFixed(1) + '%',
+                    provider: 'resend'
                 },
                 results: results.sort((a, b) => a.receiptNumber.localeCompare(b.receiptNumber)),
                 errors: errors.sort((a, b) => (a.receiptNumber || a.receiptId).localeCompare(b.receiptNumber || b.receiptId))
@@ -1004,7 +591,7 @@ const sendBulkReceipts = async (req, res) => {
         });
         
     } catch (error) {
-        console.error('❌ Bulk email error:', error.message);
+        console.error('❌ Bulk email error (Resend):', error.message);
         
         res.status(500).json({ 
             success: false,
@@ -1040,7 +627,7 @@ const getEmailStatus = async (req, res) => {
         })
         .sort({ timestamp: -1 })
         .limit(10)
-        .select('timestamp action details.ipAddress details.recipientEmail details.messageId');
+        .select('timestamp action details.ipAddress details.recipientEmail details.messageId details.provider');
         
         res.json({
             success: true,
@@ -1064,7 +651,8 @@ const getEmailStatus = async (req, res) => {
                     action: log.action,
                     recipientEmail: log.details.recipientEmail,
                     messageId: log.details.messageId,
-                    ipAddress: log.details.ipAddress
+                    ipAddress: log.details.ipAddress,
+                    provider: log.details.provider || 'unknown'
                 }))
             }
         });
