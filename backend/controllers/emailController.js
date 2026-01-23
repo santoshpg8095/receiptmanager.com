@@ -49,16 +49,16 @@ const generateProfessionalEmailHTML = (receipt, user, customMessage = null) => {
 
     // PG Rules formatted for mobile readability
     const pgRulesList = [
-        "Valid government ID is mandatory.",
-        "Rent/Deposit must be paid before occupation.",
-        "Rent is strictly non-refundable.",
-        "30-day prior notice required before vacating.",
-        "Full month rent charge if 30-day notice is missed.",
+        "Valid government ID is mandatory at the time of admission.",
+        "Rent and security deposit must be paid before occupying the room.",
+        "Rent once paid is non-refundable.",
+        "A 30-day prior notice is required before vacating.",
+        "If 30 days' prior notice is not given, the resident must pay the full month's rent and the security deposit will not be refunded.",
         "Entry must be before 10:30 PM.",
         "Guests and overnight stays are not allowed.",
-        "Maintain cleanliness; damages will be charged.",
-        "No extra electrical appliances allowed.",
-        "Management reserves all rights for rule changes."
+        "Residents must maintain cleanliness; damages will be charged.",
+        "Electrical appliances are not allowed; avoid wastage of electricity and water.",
+        "Management reserves the right to change rules and take action for violations."
     ].map(rule => `
         <div style="padding:4px 0; font-size:12px; color:#475569; border-bottom:1px solid #f1f5f9;">
             <span style="color:#f97316; font-weight:bold; margin-right:5px;">•</span> ${rule}
