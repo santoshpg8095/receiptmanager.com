@@ -55,7 +55,9 @@ const EditReceipt = () => {
     transactionId: '',
     receivedFrom: '',
     forMonth: '',
-    notes: ''
+    notes: '',
+    monthlyPaymentDate: '',
+    paidDate: ''
   });
 
   useEffect(() => {
@@ -69,6 +71,9 @@ const EditReceipt = () => {
       const receiptData = response.data;
       
       setReceipt(receiptData);
+      
+      // Format dates for input fields (YYYY-MM-DD)
+      const today = new Date().toISOString().split('T')[0];
       
       // Set form data
       setFormData({
@@ -89,7 +94,13 @@ const EditReceipt = () => {
         transactionId: receiptData.transactionId || '',
         receivedFrom: receiptData.receivedFrom || receiptData.tenantName || '',
         forMonth: receiptData.forMonth || '',
-        notes: receiptData.notes || ''
+        notes: receiptData.notes || '',
+        monthlyPaymentDate: receiptData.monthlyPaymentDate 
+          ? new Date(receiptData.monthlyPaymentDate).toISOString().split('T')[0]
+          : today,
+        paidDate: receiptData.paidDate 
+          ? new Date(receiptData.paidDate).toISOString().split('T')[0]
+          : today
       });
     } catch (error) {
       toast.error('Failed to load receipt details');
@@ -164,6 +175,17 @@ const EditReceipt = () => {
       return false;
     }
     
+    // Validate dates
+    if (formData.monthlyPaymentDate && formData.paidDate) {
+      const monthlyDate = new Date(formData.monthlyPaymentDate);
+      const paidDate = new Date(formData.paidDate);
+      
+      if (paidDate < monthlyDate) {
+        toast.error('Paid date cannot be earlier than monthly payment date');
+        return false;
+      }
+    }
+    
     return true;
   };
 
@@ -188,7 +210,9 @@ const EditReceipt = () => {
         previousBalance: parseFloat(formData.previousBalance || 0),
         amountPaid: parseFloat(formData.amountPaid || totals.totalAmount),
         totalAmount: totals.totalAmount,
-        balanceDue: totals.balanceDue
+        balanceDue: totals.balanceDue,
+        monthlyPaymentDate: formData.monthlyPaymentDate || new Date().toISOString(),
+        paidDate: formData.paidDate || new Date().toISOString()
       };
 
       const response = await api.put(`/receipts/${id}`, submitData);
@@ -488,10 +512,53 @@ const EditReceipt = () => {
                 </div>
               </div>
               
-              {/* Payment Details Section */}
+              {/* Payment Dates Section */}
               <div>
                 <h4 className="text-md font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200 flex items-center">
                   <FaCalendar className="mr-2 text-green-600" />
+                  Payment Dates
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Monthly Payment Date *
+                    </label>
+                    <input
+                      type="date"
+                      name="monthlyPaymentDate"
+                      value={formData.monthlyPaymentDate}
+                      onChange={handleChange}
+                      required
+                      className="block w-full px-3 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Expected payment date for this month
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Paid Date *
+                    </label>
+                    <input
+                      type="date"
+                      name="paidDate"
+                      value={formData.paidDate}
+                      onChange={handleChange}
+                      required
+                      className="block w-full px-3 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Actual date when payment was received
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Payment Details Section */}
+              <div>
+                <h4 className="text-md font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200 flex items-center">
+                  <FaCalendar className="mr-2 text-purple-600" />
                   Payment Details
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -863,6 +930,37 @@ const EditReceipt = () => {
                     <span>₹{totals.balanceDue.toFixed(2)}</span>
                   </div>
                 )}
+              </div>
+              
+              {/* Date Summary */}
+              <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl">
+                <h4 className="font-medium text-green-800 mb-3">Payment Dates</h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Monthly Due:</span>
+                    <span className="text-sm font-medium">
+                      {formData.monthlyPaymentDate 
+                        ? new Date(formData.monthlyPaymentDate).toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                          })
+                        : 'Not set'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Paid On:</span>
+                    <span className="text-sm font-medium">
+                      {formData.paidDate 
+                        ? new Date(formData.paidDate).toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                          })
+                        : 'Not set'}
+                    </span>
+                  </div>
+                </div>
               </div>
               
               <div className="pt-4 border-t">

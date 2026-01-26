@@ -68,6 +68,26 @@ const ReceiptPreview = ({ receipt, user, onPrint, onEmail }) => {
     }
   };
 
+  const formatShortDate = (dateString) => {
+    if (!dateString) return 'Not specified';
+    
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return 'Not specified';
+      }
+      
+      return date.toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Not specified';
+    }
+  };
+
   const formatCurrency = (amount) => {
     const parsedAmount = parseAmount(amount);
     return new Intl.NumberFormat('en-IN', {
@@ -266,10 +286,36 @@ const ReceiptPreview = ({ receipt, user, onPrint, onEmail }) => {
               </div>
             </div>
 
-            {/* Amount in Words */}
+            {/* Date Information Section */}
             <div className="mb-6">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-gradient-to-br from-purple-500 to-violet-600 text-white rounded-lg">
+                  <FaCalendar className="w-4 h-4" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">Date Information</h3>
+              </div>
+              <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-5 border border-gray-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <span className="text-sm font-medium text-gray-600 w-full sm:w-48">Monthly Payment Date:</span>
+                    <span className="font-medium text-gray-900 bg-white px-3 py-2 rounded-lg border border-gray-200 flex-1">
+                      {formatShortDate(receipt.monthlyPaymentDate)}
+                    </span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <span className="text-sm font-medium text-gray-600 w-full sm:w-48">Paid Date:</span>
+                    <span className="font-medium text-gray-900 bg-white px-3 py-2 rounded-lg border border-gray-200 flex-1">
+                      {formatShortDate(receipt.paidDate)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Amount in Words */}
+            <div className="mb-6">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-lg">
                   <FaFileAlt className="w-4 h-4" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">Amount in Words</h3>

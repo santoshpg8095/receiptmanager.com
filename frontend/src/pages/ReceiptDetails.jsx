@@ -140,6 +140,34 @@ const ReceiptDetails = () => {
         />
       </div>
 
+      {/* Payment Dates Section */}
+      <div className="bg-white rounded-xl shadow p-6 mb-6">
+        <h3 className="text-xl font-bold text-gray-900 mb-6">Payment Dates</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-500">Monthly Payment Date</label>
+            <p className="text-lg font-medium text-gray-900 mt-1">
+              {receipt.monthlyPaymentDate ? new Date(receipt.monthlyPaymentDate).toLocaleDateString('en-IN', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+              }) : 'Not specified'}
+            </p>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-500">Paid Date</label>
+            <p className="text-lg font-medium text-gray-900 mt-1">
+              {receipt.paidDate ? new Date(receipt.paidDate).toLocaleDateString('en-IN', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+              }) : 'Not specified'}
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Additional Information */}
       <div className="bg-white rounded-xl shadow p-6">
         <h3 className="text-xl font-bold text-gray-900 mb-6">Additional Information</h3>

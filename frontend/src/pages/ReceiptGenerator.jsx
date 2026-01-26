@@ -242,61 +242,64 @@ const ReceiptGenerator = () => {
   }, [formData, calculateTotals, validateForm]);
 
   const handleSubmit = useCallback(async () => {
-    if (!validateForm()) return;
-    
-    setLoading(true);
-    
-    try {
-      const totals = calculateTotals();
-      const submitData = {
-        ...formData,
-        amount: parseFloat(formData.amount),
-        securityDeposit: parseFloat(formData.securityDeposit || 0),
-        electricityCharges: parseFloat(formData.electricityCharges || 0),
-        waterCharges: parseFloat(formData.waterCharges || 0),
-        otherCharges: parseFloat(formData.otherCharges || 0),
-        previousBalance: parseFloat(formData.previousBalance || 0),
-        amountPaid: parseFloat(formData.amountPaid || totals.totalAmount),
-        monthlyPaymentDate: formData.monthlyPaymentDate,
-        paidDate: formData.paidDate
-      };
+  if (!validateForm()) return;
+  
+  setLoading(true);
+  
+  try {
+    const totals = calculateTotals();
+    const submitData = {
+      ...formData,
+      amount: parseFloat(formData.amount),
+      securityDeposit: parseFloat(formData.securityDeposit || 0),
+      electricityCharges: parseFloat(formData.electricityCharges || 0),
+      waterCharges: parseFloat(formData.waterCharges || 0),
+      otherCharges: parseFloat(formData.otherCharges || 0),
+      previousBalance: parseFloat(formData.previousBalance || 0),
+      amountPaid: parseFloat(formData.amountPaid || totals.totalAmount),
+      // Make sure these date fields are included
+      monthlyPaymentDate: formData.monthlyPaymentDate,
+      paidDate: formData.paidDate,
+      // Also include forMonth properly
+      forMonth: formData.forMonth || `${formData.month} ${formData.year}`
+    };
 
-      const response = await api.post('/receipts', submitData);
-      
-      setGeneratedReceipt(response.data.receipt);
-      toast.success('Receipt created successfully!');
-      
-      // Reset form
-      setFormData({
-        tenantName: '',
-        tenantEmail: '',
-        tenantPhone: '',
-        roomNumber: '',
-        month: months[new Date().getMonth()],
-        year: currentYear,
-        amount: '',
-        securityDeposit: '',
-        electricityCharges: '',
-        waterCharges: '',
-        otherCharges: '',
-        previousBalance: '',
-        amountPaid: '',
-        paymentMode: 'cash',
-        transactionId: '',
-        receivedFrom: '',
-        forMonth: `${months[new Date().getMonth()]} ${currentYear}`,
-        notes: '',
-        monthlyPaymentDate: today,
-        paidDate: today
-      });
-      
-    } catch (error) {
-      console.error('Submit error:', error);
-      toast.error('Failed to create receipt: ' + (error.response?.data?.message || error.message));
-    } finally {
-      setLoading(false);
-    }
-  }, [formData, calculateTotals, validateForm, today]);
+    const response = await api.post('/receipts', submitData);
+    
+    setGeneratedReceipt(response.data.receipt);
+    toast.success('Receipt created successfully!');
+    
+    // Reset form
+    setFormData({
+      tenantName: '',
+      tenantEmail: '',
+      tenantPhone: '',
+      roomNumber: '',
+      month: months[new Date().getMonth()],
+      year: currentYear,
+      amount: '',
+      securityDeposit: '',
+      electricityCharges: '',
+      waterCharges: '',
+      otherCharges: '',
+      previousBalance: '',
+      amountPaid: '',
+      paymentMode: 'cash',
+      transactionId: '',
+      receivedFrom: '',
+      forMonth: `${months[new Date().getMonth()]} ${currentYear}`,
+      notes: '',
+      monthlyPaymentDate: today,
+      paidDate: today
+    });
+    
+  } catch (error) {
+    console.error('Submit error:', error);
+    toast.error('Failed to create receipt: ' + (error.response?.data?.message || error.message));
+  } finally {
+    setLoading(false);
+  }
+}, [formData, calculateTotals, validateForm, today]);
 
   const handlePrint = useCallback(() => {
     window.print();
