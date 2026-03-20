@@ -81,7 +81,7 @@ const Sidebar = () => {
       {/* Mobile menu button */}
       <button
         onClick={toggleMobileMenu}
-        className="fixed top-4 right-4 z-50 md:hidden bg-bg-surface text-text-primary p-2 rounded-md shadow-lg border border-border-primary"
+        className="fixed top-4 right-4 z-50 md:hidden bg-gray-800 text-white p-2 rounded-md shadow-lg"
       >
         {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
       </button>
@@ -96,32 +96,32 @@ const Sidebar = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed md:sticky top-0 left-0 h-screen bg-bg-surface text-text-primary z-50 md:z-40 transition-all duration-300 ease-in-out border-r border-border-primary ${
+        className={`fixed md:sticky top-0 left-0 h-screen bg-gray-800 text-white z-50 md:z-40 transition-all duration-300 ease-in-out ${
           isCollapsed ? 'w-20' : 'w-64'
         } ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-border-primary">
+        <div className="flex items-center justify-between p-4 border-b border-gray-700">
           {!isCollapsed && (
-            <h2 className="text-xl font-bold truncate text-text-primary">PG System</h2>
+            <h2 className="text-xl font-bold truncate">PG System</h2>
           )}
           <button
             onClick={toggleSidebar}
-            className="hidden md:flex items-center justify-center w-8 h-8 rounded-full hover:bg-bg-accent transition-colors mx-auto"
+            className="hidden md:flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-700 transition-colors mx-auto"
           >
-            <FaBars className="text-text-secondary text-sm" />
+            <FaBars className="text-sm" />
           </button>
         </div>
         
         {/* User info for mobile menu */}
         {user && !isCollapsed && (
-          <div className="md:hidden p-4 border-b border-border-primary">
+          <div className="md:hidden p-4 border-b border-gray-700">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-accent-primary rounded-full flex items-center justify-center">
-                <FaUserCircle className="text-text-primary text-xl" />
+              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                <FaUserCircle className="text-xl" />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-sm text-text-primary">{user.name}</p>
-                <p className="text-xs text-text-muted capitalize">{user.role}</p>
+                <p className="font-medium text-sm">{user.name}</p>
+                <p className="text-xs text-gray-400 capitalize">{user.role}</p>
               </div>
             </div>
           </div>
@@ -136,8 +136,8 @@ const Sidebar = () => {
               className={({ isActive }) =>
                 `flex items-center px-4 py-3 my-1 mx-2 rounded-lg transition-all duration-200 group ${
                   isActive
-                    ? 'bg-accent-primary text-text-primary shadow-md'
-                    : 'text-text-secondary hover:bg-bg-accent hover:text-text-primary'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                 } ${isCollapsed ? 'justify-center' : ''}`
               }
             >
@@ -146,7 +146,7 @@ const Sidebar = () => {
               
               {/* Tooltip for collapsed state */}
               {isCollapsed && (
-                <div className="absolute left-full ml-4 px-2 py-1 bg-bg-surface text-text-primary text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-border-primary">
+                <div className="absolute left-full ml-4 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
                   {item.name}
                 </div>
               )}
@@ -155,10 +155,10 @@ const Sidebar = () => {
         </nav>
         
         {/* Logout at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border-primary">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700">
           <button
             onClick={handleLogout}
-            className={`flex items-center w-full px-4 py-3 text-text-secondary hover:bg-error hover:text-text-primary rounded-lg transition-colors ${isCollapsed ? 'justify-center' : 'space-x-3'}`}
+            className={`flex items-center w-full px-4 py-3 text-gray-300 hover:bg-red-600 hover:text-white rounded-lg transition-colors ${isCollapsed ? 'justify-center' : 'space-x-3'}`}
           >
             <FaSignOutAlt />
             {!isCollapsed && <span className="text-sm font-medium">Logout</span>}

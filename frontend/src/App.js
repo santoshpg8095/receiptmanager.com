@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { ThemeProvider } from './context/ThemeContext';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 
@@ -26,8 +25,8 @@ const ProtectedRoute = ({ children }) => {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-bg-primary">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-primary"></div>
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
         );
     }
@@ -42,11 +41,11 @@ const ProtectedRoute = ({ children }) => {
 // Layout with Sidebar for authenticated users - Updated for responsive design
 const DashboardLayout = ({ children }) => {
     return (
-        <div className="flex h-screen bg-bg-secondary overflow-hidden">
+        <div className="flex h-screen bg-gray-100 overflow-hidden">
             <Sidebar />
             <div className="flex flex-col flex-1 overflow-hidden md:ml-0">
                 <Navbar />
-                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-bg-secondary pt-0 md:pt-0">
+                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 pt-0 md:pt-0">
                     <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-4 md:py-6">
                         {children}
                     </div>
@@ -58,17 +57,16 @@ const DashboardLayout = ({ children }) => {
 
 const App = () => {
     return (
-        <ThemeProvider>
-            <Router>
-                <AuthProvider>
-                    <Toaster
-                        position="top-right"
-                        toastOptions={{
-                            duration: 4000,
-                            style: { background: 'var(--bg-surface)', color: 'var(--text-primary)' },
-                            success: { duration: 3000, style: { background: 'var(--success)', color: 'var(--text-primary)' } },
-                            error: { duration: 4000, style: { background: 'var(--error)', color: 'var(--text-primary)' } },
-                        }}
+        <Router>
+            <AuthProvider>
+                <Toaster
+                    position="top-right"
+                    toastOptions={{
+                        duration: 4000,
+                        style: { background: '#363636', color: '#fff' },
+                        success: { duration: 3000, style: { background: '#10B981' } },
+                        error: { duration: 4000, style: { background: '#EF4444' } },
+                    }}
                 />
 
                 <Routes>
@@ -148,7 +146,6 @@ const App = () => {
                 </Routes>
             </AuthProvider>
         </Router>
-        </ThemeProvider>
     );
 };
 

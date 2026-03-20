@@ -31,72 +31,72 @@ const StatsCard = ({ title, value, change, icon, type = 'default', description, 
   };
 
   const getCardStyles = () => {
-    const baseStyles = "relative border rounded-xl p-4 sm:p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 bg-bg-surface border-border-primary hover:border-border-secondary";
+    const baseStyles = "relative border rounded-xl p-4 sm:p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-1";
     
     switch (type) {
       case 'success':
-        return `${baseStyles} bg-gradient-to-br from-success/10 to-success/5`;
+        return `${baseStyles} bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:border-green-300`;
       case 'warning':
-        return `${baseStyles} bg-gradient-to-br from-warning/10 to-warning/5`;
+        return `${baseStyles} bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200 hover:border-amber-300`;
       case 'danger':
-        return `${baseStyles} bg-gradient-to-br from-error/10 to-error/5`;
+        return `${baseStyles} bg-gradient-to-br from-red-50 to-rose-50 border-red-200 hover:border-red-300`;
       case 'info':
-        return `${baseStyles} bg-gradient-to-br from-accent-primary/10 to-accent-primary/5`;
+        return `${baseStyles} bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 hover:border-blue-300`;
       case 'premium':
-        return `${baseStyles} bg-gradient-to-br from-accent-tertiary/10 to-accent-tertiary/5`;
+        return `${baseStyles} bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200 hover:border-purple-300`;
       default:
-        return baseStyles;
+        return `${baseStyles} bg-white border-gray-200 hover:border-gray-300`;
     }
   };
 
   const getTextColor = () => {
     switch (type) {
       case 'success':
-        return 'text-success';
+        return 'text-green-700';
       case 'warning':
-        return 'text-warning';
+        return 'text-amber-700';
       case 'danger':
-        return 'text-error';
+        return 'text-red-700';
       case 'info':
-        return 'text-accent-primary';
+        return 'text-blue-700';
       case 'premium':
-        return 'text-accent-tertiary';
+        return 'text-purple-700';
       default:
-        return 'text-text-primary';
+        return 'text-gray-700';
     }
   };
 
   const getAccentColor = () => {
     switch (type) {
       case 'success':
-        return 'bg-success';
+        return 'bg-gradient-to-br from-green-500 to-emerald-600';
       case 'warning':
-        return 'bg-warning';
+        return 'bg-gradient-to-br from-amber-500 to-orange-600';
       case 'danger':
-        return 'bg-error';
+        return 'bg-gradient-to-br from-red-500 to-rose-600';
       case 'info':
-        return 'bg-accent-primary';
+        return 'bg-gradient-to-br from-blue-500 to-indigo-600';
       case 'premium':
-        return 'bg-accent-tertiary';
+        return 'bg-gradient-to-br from-purple-500 to-violet-600';
       default:
-        return 'bg-text-secondary';
+        return 'bg-gradient-to-br from-gray-600 to-gray-700';
     }
   };
 
   const getIconBgColor = () => {
     switch (type) {
       case 'success':
-        return 'bg-success/20';
+        return 'bg-gradient-to-br from-green-100 to-emerald-100';
       case 'warning':
-        return 'bg-warning/20';
+        return 'bg-gradient-to-br from-amber-100 to-orange-100';
       case 'danger':
-        return 'bg-error/20';
+        return 'bg-gradient-to-br from-red-100 to-rose-100';
       case 'info':
-        return 'bg-accent-primary/20';
+        return 'bg-gradient-to-br from-blue-100 to-indigo-100';
       case 'premium':
-        return 'bg-accent-tertiary/20';
+        return 'bg-gradient-to-br from-purple-100 to-violet-100';
       default:
-        return 'bg-bg-accent';
+        return 'bg-gradient-to-br from-gray-100 to-gray-200';
     }
   };
 
@@ -130,15 +130,15 @@ const StatsCard = ({ title, value, change, icon, type = 'default', description, 
     const iconClass = "w-3 h-3 sm:w-4 sm:h-4";
     
     if (change > 20) {
-      return <FaChartLine className={`${iconClass} text-success rotate-45`} />;
+      return <FaChartLine className={`${iconClass} text-green-500 rotate-45`} />;
     } else if (change > 0) {
-      return <FaArrowUp className={`${iconClass} text-success`} />;
+      return <FaArrowUp className={`${iconClass} text-green-500`} />;
     } else if (change < -20) {
-      return <FaChartLine className={`${iconClass} text-error -rotate-45`} />;
+      return <FaChartLine className={`${iconClass} text-red-500 -rotate-45`} />;
     } else if (change < 0) {
-      return <FaArrowDown className={`${iconClass} text-error`} />;
+      return <FaArrowDown className={`${iconClass} text-red-500`} />;
     }
-    return <FaChartLine className={`${iconClass} text-text-muted`} />;
+    return <FaChartLine className={`${iconClass} text-gray-500`} />;
   };
 
   const getChangeText = () => {
@@ -156,10 +156,10 @@ const StatsCard = ({ title, value, change, icon, type = 'default', description, 
       <div className={`${getCardStyles()} animate-pulse`}>
         <div className="flex items-center justify-between">
           <div className="space-y-3 flex-1">
-            <div className="h-4 bg-bg-accent rounded w-3/4"></div>
-            <div className="h-8 bg-border-primary rounded w-1/2"></div>
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-8 bg-gray-300 rounded w-1/2"></div>
           </div>
-          <div className="h-12 w-12 bg-bg-accent rounded-full"></div>
+          <div className="h-12 w-12 bg-gray-200 rounded-full"></div>
         </div>
       </div>
     );
@@ -170,11 +170,11 @@ const StatsCard = ({ title, value, change, icon, type = 'default', description, 
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1 min-w-0">
-          <p className="text-xs sm:text-sm font-medium text-text-secondary truncate flex items-center">
+          <p className="text-xs sm:text-sm font-medium text-gray-500 truncate flex items-center">
             {title}
             {description && (
               <button 
-                className="ml-1 text-text-muted hover:text-text-secondary focus:outline-none"
+                className="ml-1 text-gray-400 hover:text-gray-600 focus:outline-none"
                 title={description}
               >
                 <FaInfoCircle className="w-3 h-3" />
@@ -193,8 +193,8 @@ const StatsCard = ({ title, value, change, icon, type = 'default', description, 
               <div className="ml-3 flex items-center">
                 <div className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                   change >= 0 
-                    ? 'bg-success/20 text-success' 
-                    : 'bg-error/20 text-error'
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-red-100 text-red-800'
                 }`}>
                   {getChangeIcon()}
                   <span className="ml-1 hidden xs:inline">
@@ -219,9 +219,9 @@ const StatsCard = ({ title, value, change, icon, type = 'default', description, 
       
       {/* Footer with trend line */}
       {change !== undefined && (
-        <div className="mt-4 pt-4 border-t border-border-primary">
+        <div className="mt-4 pt-4 border-t border-gray-100">
           <div className="flex items-center justify-between">
-            <div className="text-xs text-text-secondary">
+            <div className="text-xs text-gray-500">
               <span className="hidden sm:inline">From last month</span>
               <span className="sm:hidden">vs last month</span>
             </div>
@@ -241,8 +241,8 @@ const StatsCard = ({ title, value, change, icon, type = 'default', description, 
                     key={i}
                     className={`w-1 ${barHeight} rounded-full ${
                       change >= 0 
-                        ? 'bg-success' 
-                        : 'bg-error'
+                        ? 'bg-gradient-to-t from-green-400 to-green-500' 
+                        : 'bg-gradient-to-t from-red-400 to-red-500'
                     }`}
                   ></div>
                 );

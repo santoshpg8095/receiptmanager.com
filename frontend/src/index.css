@@ -4,7 +4,11 @@
 @tailwind components;
 @tailwind utilities;
 
-@import './theme.css';
+:root {
+  --primary-color: #3B82F6;
+  --secondary-color: #10B981;
+  --accent-color: #8B5CF6;
+}
 
 body {
   margin: 0;
