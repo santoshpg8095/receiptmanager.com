@@ -116,7 +116,6 @@ const Profile = () => {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     
-    // Validation
     if (!formData.currentPassword) {
       toast.error('Please enter your current password', {
         icon: '⚠️',
@@ -217,7 +216,6 @@ const Profile = () => {
         setTwoFactorEnabled(true);
         toast.dismiss(toastId);
         
-        // Show QR code and backup codes in a modal
         toast.success('Two-factor authentication enabled!', {
             icon: '🔐',
             style: {
@@ -228,7 +226,6 @@ const Profile = () => {
             duration: 5000,
         });
         
-        // Store backup codes securely (show to user)
         console.log('Backup codes:', response.data.backupCodes);
         
     } catch (error) {
@@ -261,7 +258,6 @@ const Profile = () => {
     try {
         setLoading(true);
         
-        // Ask for password confirmation
         const password = window.prompt('Please enter your password to confirm account deletion:');
         if (!password) {
             setLoading(false);
@@ -283,7 +279,6 @@ const Profile = () => {
             duration: 3000,
         });
         
-        // Logout and redirect after delay
         setTimeout(() => {
             logout();
         }, 2000);
@@ -311,33 +306,33 @@ const Profile = () => {
 
   if (profileLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
-          <p className="mt-4 text-gray-600">Loading your profile...</p>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 dark:border-blue-400 border-t-transparent"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading your profile...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-4 md:p-6 lg:p-8 transition-colors duration-300">
       {/* Header */}
       <div className="mb-6 md:mb-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
               Profile Settings
             </h1>
-            <p className="text-gray-600 text-sm md:text-base mt-2">Manage your account and PG details</p>
+            <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base mt-2">Manage your account and PG details</p>
           </div>
           
           <div className="flex items-center gap-3">
             <button 
               onClick={() => window.location.href = '/dashboard'}
-              className="px-4 py-2 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2"
+              className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all flex items-center gap-2"
             >
-              <span className="text-sm font-medium">Back to Dashboard</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Back to Dashboard</span>
             </button>
           </div>
         </div>
@@ -347,78 +342,78 @@ const Profile = () => {
         {/* Left Sidebar */}
         <div className="space-y-6">
           {/* Profile Card */}
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 transition-colors duration-300">
             <div className="p-6">
               <div className="text-center">
                 <div className="relative w-24 h-24 mx-auto mb-4">
                   <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
                     <FaUserCircle className="h-16 w-16 text-white" />
                   </div>
-                  <div className="absolute bottom-2 right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
+                  <div className="absolute bottom-2 right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white dark:border-gray-800 flex items-center justify-center">
                     <FaCheckCircle className="h-4 w-4 text-white" />
                   </div>
                 </div>
-                <h2 className="text-xl font-bold text-gray-900 mb-1">{user.name}</h2>
-                <p className="text-gray-600 mb-3">{user.email}</p>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{user.name}</h2>
+                <p className="text-gray-600 dark:text-gray-400 mb-3">{user.email}</p>
                 <span className={`inline-block px-4 py-1.5 rounded-full text-sm font-bold ${
                   user.role === 'admin' 
-                    ? 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800' 
-                    : 'bg-gradient-to-r from-green-100 to-emerald-200 text-green-800'
+                    ? 'bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-800 dark:text-blue-400' 
+                    : 'bg-gradient-to-r from-green-100 to-emerald-200 dark:from-green-900/30 dark:to-emerald-800/30 text-green-800 dark:text-green-400'
                 }`}>
                   {user.role === 'admin' ? 'Administrator' : 'Staff'}
                 </span>
               </div>
               
               <div className="mt-8 space-y-4">
-                <div className="flex items-center p-3 bg-blue-50 rounded-xl">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                    <FaBuilding className="h-5 w-5 text-blue-600" />
+                <div className="flex items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mr-3">
+                    <FaBuilding className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">PG Name</p>
-                    <p className="font-bold text-gray-900">{user.pgName}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">PG Name</p>
+                    <p className="font-bold text-gray-900 dark:text-white">{user.pgName}</p>
                   </div>
                 </div>
                 
-                <div className="flex items-center p-3 bg-emerald-50 rounded-xl">
-                  <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center mr-3">
-                    <FaMapMarkerAlt className="h-5 w-5 text-emerald-600" />
+                <div className="flex items-center p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
+                  <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center mr-3">
+                    <FaMapMarkerAlt className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Location</p>
-                    <p className="font-bold text-gray-900">{user.pgAddress}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Location</p>
+                    <p className="font-bold text-gray-900 dark:text-white">{user.pgAddress}</p>
                   </div>
                 </div>
                 
-                <div className="flex items-center p-3 bg-purple-50 rounded-xl">
-                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
-                    <FaPhone className="h-5 w-5 text-purple-600" />
+                <div className="flex items-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-xl">
+                  <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center mr-3">
+                    <FaPhone className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Contact</p>
-                    <p className="font-bold text-gray-900">{user.pgContact}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Contact</p>
+                    <p className="font-bold text-gray-900 dark:text-white">{user.pgContact}</p>
                   </div>
                 </div>
                 
                 {user.gstin && (
-                  <div className="flex items-center p-3 bg-amber-50 rounded-xl">
-                    <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center mr-3">
-                      <FaReceipt className="h-5 w-5 text-amber-600" />
+                  <div className="flex items-center p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
+                    <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center mr-3">
+                      <FaReceipt className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">GSTIN</p>
-                      <p className="font-bold text-gray-900 tracking-wide">{user.gstin}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">GSTIN</p>
+                      <p className="font-bold text-gray-900 dark:text-white tracking-wide">{user.gstin}</p>
                     </div>
                   </div>
                 )}
               </div>
             </div>
             
-            <div className="p-6 bg-gradient-to-r from-gray-50 to-white border-t border-gray-100">
+            <div className="p-6 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800 border-t border-gray-100 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Account Created</p>
-                  <p className="font-bold text-gray-900">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Account Created</p>
+                  <p className="font-bold text-gray-900 dark:text-white">
                     {new Date(user.createdAt).toLocaleDateString('en-IN', {
                       day: 'numeric',
                       month: 'short',
@@ -426,7 +421,7 @@ const Profile = () => {
                     })}
                   </p>
                 </div>
-                <FaHistory className="text-gray-400" />
+                <FaHistory className="text-gray-400 dark:text-gray-500" />
               </div>
             </div>
           </div>
@@ -459,7 +454,7 @@ const Profile = () => {
                 <span className="text-lg font-bold">{userStats?.stats?.currentMonthReceipts || 0}</span>
               </div>
               
-              <div className="flex items-center justify-between p-3 bg-white/10 rounded-xl backdrop-xl backdrop-blur-sm">
+              <div className="flex items-center justify-between p-3 bg-white/10 rounded-xl backdrop-blur-sm">
                 <div className="flex items-center">
                   <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mr-3">
                     <FaRupeeSign className="h-4 w-4" />
@@ -500,7 +495,7 @@ const Profile = () => {
                 className={`flex items-center gap-2 px-4 py-3 rounded-xl font-medium transition-all ${
                   activeTab === tab.id
                     ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg'
-                    : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+                    : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
                 }`}
               >
                 <tab.icon className="h-4 w-4" />
@@ -511,24 +506,24 @@ const Profile = () => {
 
           {/* Profile Tab */}
           {activeTab === 'profile' && (
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-              <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-                <h3 className="text-xl font-bold text-gray-900 flex items-center">
-                  <FaUser className="mr-2 text-blue-600" />
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+              <div className="p-6 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                  <FaUser className="mr-2 text-blue-600 dark:text-blue-400" />
                   Edit Profile Details
                 </h3>
-                <p className="text-gray-600 text-sm mt-1">Update your personal and PG information</p>
+                <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">Update your personal and PG information</p>
               </div>
               
               <form onSubmit={handleProfileSubmit} className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                       Full Name *
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <FaUser className="h-5 w-5 text-gray-400" />
+                        <FaUser className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       </div>
                       <input
                         type="text"
@@ -536,18 +531,18 @@ const Profile = () => {
                         value={formData.name}
                         onChange={handleChange}
                         required
-                        className="block w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="block w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       />
                     </div>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                       Email Address *
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <FaEnvelope className="h-5 w-5 text-gray-400" />
+                        <FaEnvelope className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       </div>
                       <input
                         type="email"
@@ -555,18 +550,18 @@ const Profile = () => {
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        className="block w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="block w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       />
                     </div>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                       PG Name *
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <FaBuilding className="h-5 w-5 text-gray-400" />
+                        <FaBuilding className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       </div>
                       <input
                         type="text"
@@ -574,18 +569,18 @@ const Profile = () => {
                         value={formData.pgName}
                         onChange={handleChange}
                         required
-                        className="block w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="block w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       />
                     </div>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                       Contact Number *
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <FaPhone className="h-5 w-5 text-gray-400" />
+                        <FaPhone className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       </div>
                       <input
                         type="tel"
@@ -595,21 +590,21 @@ const Profile = () => {
                         required
                         pattern="[6-9]{1}[0-9]{9}"
                         maxLength="10"
-                        className="block w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="block w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       />
                     </div>
                     {!validatePhone(formData.pgContact) && formData.pgContact && (
-                      <p className="mt-1 text-sm text-red-600">Please enter a valid 10-digit Indian phone number</p>
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">Please enter a valid 10-digit Indian phone number</p>
                     )}
                   </div>
                   
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                       PG Address *
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <FaMapMarkerAlt className="h-5 w-5 text-gray-400" />
+                        <FaMapMarkerAlt className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       </div>
                       <textarea
                         name="pgAddress"
@@ -617,13 +612,13 @@ const Profile = () => {
                         onChange={handleChange}
                         required
                         rows="2"
-                        className="block w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all resize-none"
+                        className="block w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       />
                     </div>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                       GSTIN (Optional)
                     </label>
                     <input
@@ -631,20 +626,20 @@ const Profile = () => {
                       name="gstin"
                       value={formData.gstin}
                       onChange={handleChange}
-                      className={`block w-full px-4 py-3 border-2 rounded-xl focus:ring-2 transition-all uppercase tracking-wider ${
+                      className={`block w-full px-4 py-3 border-2 rounded-xl focus:ring-2 transition-all uppercase tracking-wider bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
                         formData.gstin && !validateGSTIN(formData.gstin)
-                          ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
-                          : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200'
+                          ? 'border-red-300 dark:border-red-600 focus:border-red-500 focus:ring-red-200'
+                          : 'border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-200 dark:focus:ring-blue-800'
                       }`}
                       placeholder="22AAAAA0000A1Z5"
                     />
                     {formData.gstin && !validateGSTIN(formData.gstin) && (
-                      <p className="mt-1 text-sm text-red-600">Please enter a valid GSTIN</p>
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">Please enter a valid GSTIN</p>
                     )}
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                       Email Signature
                     </label>
                     <textarea
@@ -652,7 +647,7 @@ const Profile = () => {
                       value={formData.emailSignature}
                       onChange={handleChange}
                       rows="2"
-                      className="block w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all resize-none"
+                      className="block w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       placeholder="Best regards,\n[Your Name]"
                     />
                   </div>
@@ -674,24 +669,24 @@ const Profile = () => {
 
           {/* Password Tab */}
           {activeTab === 'password' && (
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-              <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-                <h3 className="text-xl font-bold text-gray-900 flex items-center">
-                  <FaLock className="mr-2 text-green-600" />
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+              <div className="p-6 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                  <FaLock className="mr-2 text-green-600 dark:text-green-400" />
                   Update Password
                 </h3>
-                <p className="text-gray-600 text-sm mt-1">Change your account password</p>
+                <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">Change your account password</p>
               </div>
               
               <form onSubmit={handlePasswordSubmit} className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                       Current Password *
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <FaLock className="h-5 w-5 text-gray-400" />
+                        <FaLock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       </div>
                       <input
                         type={showPassword ? 'text' : 'password'}
@@ -699,7 +694,7 @@ const Profile = () => {
                         value={formData.currentPassword}
                         onChange={handleChange}
                         required
-                        className="block w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="block w-full pl-12 pr-12 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       />
                       <button
                         type="button"
@@ -707,21 +702,21 @@ const Profile = () => {
                         className="absolute inset-y-0 right-0 pr-4 flex items-center"
                       >
                         {showPassword ? (
-                          <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                          <FaEyeSlash className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300" />
                         ) : (
-                          <FaEye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                          <FaEye className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300" />
                         )}
                       </button>
                     </div>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                       New Password *
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <FaLock className="h-5 w-5 text-gray-400" />
+                        <FaLock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       </div>
                       <input
                         type={showPassword ? 'text' : 'password'}
@@ -730,18 +725,18 @@ const Profile = () => {
                         onChange={handleChange}
                         required
                         minLength="6"
-                        className="block w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="block w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       />
                     </div>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                       Confirm New Password *
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <FaLock className="h-5 w-5 text-gray-400" />
+                        <FaLock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       </div>
                       <input
                         type={showPassword ? 'text' : 'password'}
@@ -749,28 +744,28 @@ const Profile = () => {
                         value={formData.confirmPassword}
                         onChange={handleChange}
                         required
-                        className="block w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="block w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       />
                     </div>
                   </div>
                 </div>
                 
                 <div className="mt-8">
-                  <div className="p-5 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl mb-6 border border-blue-100">
-                    <h4 className="font-bold text-blue-800 mb-3 flex items-center">
+                  <div className="p-5 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl mb-6 border border-blue-100 dark:border-blue-800">
+                    <h4 className="font-bold text-blue-800 dark:text-blue-400 mb-3 flex items-center">
                       <FaShieldAlt className="mr-2" />
                       Password Requirements
                     </h4>
                     <ul className="space-y-2">
-                      <li className="flex items-center text-sm text-blue-700">
+                      <li className="flex items-center text-sm text-blue-700 dark:text-blue-300">
                         <FaCheckCircle className={`h-4 w-4 mr-2 ${
-                          formData.newPassword.length >= 6 ? 'text-green-500' : 'text-gray-300'
+                          formData.newPassword.length >= 6 ? 'text-green-500' : 'text-gray-300 dark:text-gray-600'
                         }`} />
                         Minimum 6 characters
                       </li>
-                      <li className="flex items-center text-sm text-blue-700">
+                      <li className="flex items-center text-sm text-blue-700 dark:text-blue-300">
                         <FaCheckCircle className={`h-4 w-4 mr-2 ${
-                          formData.newPassword === formData.confirmPassword && formData.newPassword ? 'text-green-500' : 'text-gray-300'
+                          formData.newPassword === formData.confirmPassword && formData.newPassword ? 'text-green-500' : 'text-gray-300 dark:text-gray-600'
                         }`} />
                         Passwords must match
                       </li>
@@ -796,24 +791,24 @@ const Profile = () => {
           {activeTab === 'settings' && (
             <div className="space-y-6">
               {/* Security Settings */}
-              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-                <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-                  <h3 className="text-xl font-bold text-gray-900 flex items-center">
-                    <FaShieldAlt className="mr-2 text-purple-600" />
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+                <div className="p-6 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                    <FaShieldAlt className="mr-2 text-purple-600 dark:text-purple-400" />
                     Security Settings
                   </h3>
                 </div>
                 <div className="p-6">
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl border border-purple-100">
+                    <div className="flex items-center justify-between p-4 bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-xl border border-purple-100 dark:border-purple-800">
                       <div className="flex items-center">
-                        <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
-                          <FaShieldAlt className="h-6 w-6 text-purple-600" />
+                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center mr-4">
+                          <FaShieldAlt className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                         </div>
                         <div>
-                          <p className="font-bold text-gray-900">Two-Factor Authentication</p>
-                          <p className="text-sm text-gray-600">Add an extra layer of security to your account</p>
-                          <p className="text-xs text-purple-600 mt-1">
+                          <p className="font-bold text-gray-900 dark:text-white">Two-Factor Authentication</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Add an extra layer of security to your account</p>
+                          <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
                             {twoFactorEnabled ? '✓ Currently enabled' : 'Currently disabled'}
                           </p>
                         </div>
@@ -830,19 +825,19 @@ const Profile = () => {
                       </button>
                     </div>
                     
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-100">
+                    <div className="flex items-center justify-between p-4 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
                       <div className="flex items-center">
-                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
-                          <FaBell className="h-6 w-6 text-blue-600" />
+                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mr-4">
+                          <FaBell className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div>
-                          <p className="font-bold text-gray-900">Login Notifications</p>
-                          <p className="text-sm text-gray-600">Get alerts for new login attempts</p>
+                          <p className="font-bold text-gray-900 dark:text-white">Login Notifications</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Get alerts for new login attempts</p>
                         </div>
                       </div>
                       <button
                         onClick={() => setNotificationsEnabled(!notificationsEnabled)}
-                        className="relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        className="relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
                         style={{ backgroundColor: notificationsEnabled ? '#3b82f6' : '#d1d5db' }}
                       >
                         <span
@@ -857,23 +852,23 @@ const Profile = () => {
               </div>
 
               {/* Data Management */}
-              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-                <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-                  <h3 className="text-xl font-bold text-gray-900 flex items-center">
-                    <FaDatabase className="mr-2 text-amber-600" />
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+                <div className="p-6 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                    <FaDatabase className="mr-2 text-amber-600 dark:text-amber-400" />
                     Data Management
                   </h3>
                 </div>
                 <div className="p-6">
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-100">
+                    <div className="flex items-center justify-between p-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl border border-amber-100 dark:border-amber-800">
                       <div className="flex items-center">
-                        <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center mr-4">
-                          <FaFileExport className="h-6 w-6 text-amber-600" />
+                        <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center mr-4">
+                          <FaFileExport className="h-6 w-6 text-amber-600 dark:text-amber-400" />
                         </div>
                         <div>
-                          <p className="font-bold text-gray-900">Export Data</p>
-                          <p className="text-sm text-gray-600">Download all your receipts and data as CSV</p>
+                          <p className="font-bold text-gray-900 dark:text-white">Export Data</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Download all your receipts and data as CSV</p>
                         </div>
                       </div>
                       <button 
@@ -884,19 +879,19 @@ const Profile = () => {
                       </button>
                     </div>
                     
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-br from-rose-50 to-pink-50 rounded-xl border border-rose-100">
+                    <div className="flex items-center justify-between p-4 bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 rounded-xl border border-rose-100 dark:border-rose-800">
                       <div className="flex items-center">
-                        <div className="w-12 h-12 bg-rose-100 rounded-lg flex items-center justify-center mr-4">
-                          <FaTrash className="h-6 w-6 text-rose-600" />
+                        <div className="w-12 h-12 bg-rose-100 dark:bg-rose-900/30 rounded-lg flex items-center justify-center mr-4">
+                          <FaTrash className="h-6 w-6 text-rose-600 dark:text-rose-400" />
                         </div>
                         <div>
-                          <p className="font-bold text-rose-900">Delete Account</p>
-                          <p className="text-sm text-rose-700">Permanently delete your account and all data</p>
+                          <p className="font-bold text-rose-900 dark:text-rose-400">Delete Account</p>
+                          <p className="text-sm text-rose-700 dark:text-rose-300">Permanently delete your account and all data</p>
                         </div>
                       </div>
                       <button 
                         onClick={() => setShowDeleteConfirm(true)}
-                        className="px-5 py-2.5 border-2 border-rose-600 text-rose-600 rounded-lg hover:bg-rose-50 transition-all"
+                        className="px-5 py-2.5 border-2 border-rose-600 dark:border-rose-500 text-rose-600 dark:text-rose-400 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-all"
                       >
                         Delete
                       </button>
@@ -912,20 +907,20 @@ const Profile = () => {
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full">
             <div className="p-6">
               <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-rose-100 rounded-lg flex items-center justify-center mr-4">
-                  <FaTrash className="h-6 w-6 text-rose-600" />
+                <div className="w-12 h-12 bg-rose-100 dark:bg-rose-900/30 rounded-lg flex items-center justify-center mr-4">
+                  <FaTrash className="h-6 w-6 text-rose-600 dark:text-rose-400" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">Delete Account</h3>
-                  <p className="text-gray-600">This action cannot be undone</p>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">Delete Account</h3>
+                  <p className="text-gray-600 dark:text-gray-400">This action cannot be undone</p>
                 </div>
               </div>
               
-              <div className="p-4 bg-rose-50 rounded-xl mb-6">
-                <p className="text-rose-800 text-sm">
+              <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-xl mb-6">
+                <p className="text-rose-800 dark:text-rose-300 text-sm">
                   <strong>Warning:</strong> This will permanently delete your account, all receipts, 
                   and associated data. This action cannot be reversed.
                 </p>
@@ -934,7 +929,7 @@ const Profile = () => {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all"
+                  className="flex-1 px-4 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
                   disabled={loading}
                 >
                   Cancel

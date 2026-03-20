@@ -38,14 +38,14 @@ const ProtectedRoute = ({ children }) => {
     return children;
 };
 
-// Layout with Sidebar for authenticated users - Updated for responsive design
+// App.js - Updated DashboardLayout with dark mode
 const DashboardLayout = ({ children }) => {
     return (
-        <div className="flex h-screen bg-gray-100 overflow-hidden">
+        <div className="flex h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden transition-colors duration-300">
             <Sidebar />
             <div className="flex flex-col flex-1 overflow-hidden md:ml-0">
                 <Navbar />
-                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 pt-0 md:pt-0">
+                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-gray-900 pt-0 md:pt-0 transition-colors duration-300">
                     <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-4 md:py-6">
                         {children}
                     </div>

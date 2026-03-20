@@ -117,26 +117,26 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
       <Navbar />
       
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-20 md:pt-32 pb-20 px-4">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-purple-600/5" />
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-purple-600/5 dark:from-blue-400/5 dark:to-purple-400/5" />
         <div className="container mx-auto relative">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 text-blue-600 text-sm font-medium mb-6">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm font-medium mb-6">
               <FaStar className="mr-2" /> Trusted by 500+ PG Owners
             </div>
             
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
               Professional Receipts for{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
                 PG & Hostels
               </span>
             </h1>
             
-            <p className="text-xl text-gray-600 mb-10 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 dark:text-gray-400 mb-10 max-w-3xl mx-auto">
               Automate your rent collection with secure, tamper-proof receipts. 
               Save time, reduce errors, and provide premium service to your tenants.
             </p>
@@ -151,7 +151,7 @@ const Landing = () => {
               </Link>
               <Link
                 to="/login"
-                className="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-800 font-bold rounded-xl text-lg border-2 border-gray-200 hover:border-blue-600 hover:text-blue-600 transition-all duration-300"
+                className="inline-flex items-center justify-center px-8 py-4 bg-white dark:bg-gray-800 text-gray-800 dark:text-white font-bold rounded-xl text-lg border-2 border-gray-200 dark:border-gray-700 hover:border-blue-600 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300"
               >
                 Sign In
               </Link>
@@ -160,8 +160,8 @@ const Landing = () => {
             <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto">
               {stats.map((stat, index) => (
                 <div key={index} className="text-center">
-                  <div className="text-2xl md:text-3xl font-bold text-gray-900">{stat.value}</div>
-                  <div className="text-sm text-gray-600 mt-2">{stat.label}</div>
+                  <div className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-2">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -170,13 +170,13 @@ const Landing = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white dark:bg-gray-800">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Everything You Need in One Platform
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               From receipt generation to payment tracking, we've got you covered.
             </p>
           </div>
@@ -185,15 +185,15 @@ const Landing = () => {
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="group bg-white rounded-2xl p-8 border border-gray-200 hover:border-blue-500 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300"
+                className="group bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300"
               >
-                <div className="text-blue-600 mb-6 transform group-hover:scale-110 transition-transform duration-300">
+                <div className="text-blue-600 dark:text-blue-400 mb-6 transform group-hover:scale-110 transition-transform duration-300">
                   {feature.icon}
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600">{feature.description}</p>
+                <p className="text-gray-600 dark:text-gray-400">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -201,13 +201,13 @@ const Landing = () => {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
+      <section className="py-20 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Simple, Fast & Secure
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               Get started in minutes. No training required.
             </p>
           </div>
@@ -218,8 +218,8 @@ const Landing = () => {
                 1
               </div>
               <div className="absolute top-10 left-1/2 w-full h-0.5 bg-gradient-to-r from-blue-500 to-transparent hidden md:block" />
-              <h3 className="text-xl font-bold mb-4">Sign Up</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Sign Up</h3>
+              <p className="text-gray-600 dark:text-gray-400">
                 Create your account and add your PG details in 2 minutes.
               </p>
             </div>
@@ -229,8 +229,8 @@ const Landing = () => {
                 2
               </div>
               <div className="absolute top-10 left-1/2 w-full h-0.5 bg-gradient-to-r from-purple-500 to-transparent hidden md:block" />
-              <h3 className="text-xl font-bold mb-4">Generate Receipt</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Generate Receipt</h3>
+              <p className="text-gray-600 dark:text-gray-400">
                 Fill tenant details and generate secure receipts instantly.
               </p>
             </div>
@@ -239,8 +239,8 @@ const Landing = () => {
               <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto mb-6 shadow-lg">
                 3
               </div>
-              <h3 className="text-xl font-bold mb-4">Send & Track</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Send & Track</h3>
+              <p className="text-gray-600 dark:text-gray-400">
                 Email receipts automatically and track from dashboard.
               </p>
             </div>
@@ -249,33 +249,33 @@ const Landing = () => {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white dark:bg-gray-800">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Loved by PG Owners
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               Join hundreds of satisfied PG owners across India.
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <div key={index} className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 border border-gray-200">
+              <div key={index} className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-700 dark:to-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center mb-6">
                   {[...Array(5)].map((_, i) => (
-                    <FaStar key={i} className={`w-5 h-5 ${i < testimonial.rating ? 'text-yellow-400' : 'text-gray-300'}`} />
+                    <FaStar key={i} className={`w-5 h-5 ${i < testimonial.rating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'}`} />
                   ))}
                 </div>
-                <p className="text-gray-700 italic mb-6">"{testimonial.content}"</p>
+                <p className="text-gray-700 dark:text-gray-300 italic mb-6">"{testimonial.content}"</p>
                 <div className="flex items-center">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
                     {testimonial.name.charAt(0)}
                   </div>
                   <div className="ml-4">
-                    <h4 className="font-bold text-gray-900">{testimonial.name}</h4>
-                    <p className="text-gray-600 text-sm">{testimonial.role}</p>
+                    <h4 className="font-bold text-gray-900 dark:text-white">{testimonial.name}</h4>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">{testimonial.role}</p>
                   </div>
                 </div>
               </div>
@@ -285,13 +285,13 @@ const Landing = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 bg-gradient-to-b from-white to-gray-50">
+      <section className="py-20 bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Frequently Asked Questions
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               Get answers to common questions about PG Receipts.
             </p>
           </div>
@@ -301,18 +301,18 @@ const Landing = () => {
               <div key={index} className="mb-4">
                 <button
                   onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                  className="w-full flex justify-between items-center p-6 bg-white rounded-xl border border-gray-200 hover:border-blue-500 transition-all duration-300 text-left"
+                  className="w-full flex justify-between items-center p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300 text-left"
                 >
-                  <span className="text-lg font-medium text-gray-900">{faq.question}</span>
+                  <span className="text-lg font-medium text-gray-900 dark:text-white">{faq.question}</span>
                   {openFaq === index ? (
-                    <FaChevronUp className="text-blue-600" />
+                    <FaChevronUp className="text-blue-600 dark:text-blue-400" />
                   ) : (
-                    <FaChevronDown className="text-gray-400" />
+                    <FaChevronDown className="text-gray-400 dark:text-gray-500" />
                   )}
                 </button>
                 {openFaq === index && (
-                  <div className="mt-2 p-6 bg-blue-50 rounded-xl">
-                    <p className="text-gray-700">{faq.answer}</p>
+                  <div className="mt-2 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                    <p className="text-gray-700 dark:text-gray-300">{faq.answer}</p>
                   </div>
                 )}
               </div>
@@ -324,35 +324,35 @@ const Landing = () => {
       {/* Terms & Conditions Modal */}
       {showTerms && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-4xl max-h-[80vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-4xl max-h-[80vh] overflow-y-auto">
             <div className="p-8">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Terms & Conditions</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Terms & Conditions</h2>
                 <button
                   onClick={() => setShowTerms(false)}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                 >
                   ✕
                 </button>
               </div>
               
-              <div className="space-y-6 text-gray-700">
+              <div className="space-y-6 text-gray-700 dark:text-gray-300">
                 <section>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">1. Acceptance of Terms</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">1. Acceptance of Terms</h3>
                   <p>
                     By accessing and using PG Receipts, you accept and agree to be bound by the terms and provision of this agreement.
                   </p>
                 </section>
                 
                 <section>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">2. Service Description</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">2. Service Description</h3>
                   <p>
                     PG Receipts provides an online platform for PG owners and managers to generate, manage, and track payment receipts.
                   </p>
                 </section>
                 
                 <section>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">3. User Responsibilities</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">3. User Responsibilities</h3>
                   <ul className="list-disc pl-5 space-y-2">
                     <li>You are responsible for maintaining the confidentiality of your account</li>
                     <li>You must provide accurate and complete information</li>
@@ -361,36 +361,36 @@ const Landing = () => {
                 </section>
                 
                 <section>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">4. Payment Terms</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">4. Payment Terms</h3>
                   <p>
                     Free plan includes basic features. Premium features require subscription payment. All payments are non-refundable.
                   </p>
                 </section>
                 
                 <section>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">5. Limitation of Liability</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">5. Limitation of Liability</h3>
                   <p>
                     PG Receipts shall not be liable for any indirect, incidental, special, consequential or punitive damages.
                   </p>
                 </section>
                 
                 <section>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">6. Termination</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">6. Termination</h3>
                   <p>
                     We reserve the right to terminate or suspend access to our service immediately, without prior notice.
                   </p>
                 </section>
                 
                 <section>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">7. Changes to Terms</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">7. Changes to Terms</h3>
                   <p>
                     We reserve the right to modify these terms at any time. Users will be notified of any changes.
                   </p>
                 </section>
               </div>
               
-              <div className="mt-8 pt-6 border-t">
-                <p className="text-sm text-gray-500">
+              <div className="mt-8 pt-6 border-t dark:border-gray-700">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   Last updated: {new Date().toLocaleDateString('en-IN', { 
                     day: 'numeric', 
                     month: 'long', 
@@ -406,21 +406,21 @@ const Landing = () => {
       {/* Privacy Policy Modal */}
       {showPrivacy && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-4xl max-h-[80vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-4xl max-h-[80vh] overflow-y-auto">
             <div className="p-8">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Privacy Policy</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Privacy Policy</h2>
                 <button
                   onClick={() => setShowPrivacy(false)}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                 >
                   ✕
                 </button>
               </div>
               
-              <div className="space-y-6 text-gray-700">
+              <div className="space-y-6 text-gray-700 dark:text-gray-300">
                 <section>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">1. Information We Collect</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">1. Information We Collect</h3>
                   <ul className="list-disc pl-5 space-y-2">
                     <li>Account information (name, email, PG details)</li>
                     <li>Receipt data (tenant information, payment details)</li>
@@ -430,7 +430,7 @@ const Landing = () => {
                 </section>
                 
                 <section>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">2. How We Use Your Information</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">2. How We Use Your Information</h3>
                   <ul className="list-disc pl-5 space-y-2">
                     <li>To provide and maintain our service</li>
                     <li>To process transactions</li>
@@ -441,28 +441,28 @@ const Landing = () => {
                 </section>
                 
                 <section>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">3. Data Security</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">3. Data Security</h3>
                   <p>
                     We implement industry-standard security measures including encryption, firewalls, and secure servers to protect your data.
                   </p>
                 </section>
                 
                 <section>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">4. Data Retention</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">4. Data Retention</h3>
                   <p>
                     We retain your data only for as long as necessary to provide our services and comply with legal requirements.
                   </p>
                 </section>
                 
                 <section>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">5. Third-Party Services</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">5. Third-Party Services</h3>
                   <p>
                     We use trusted third-party services for payment processing and email delivery. These services have their own privacy policies.
                   </p>
                 </section>
                 
                 <section>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">6. Your Rights</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">6. Your Rights</h3>
                   <ul className="list-disc pl-5 space-y-2">
                     <li>Right to access your personal data</li>
                     <li>Right to correct inaccurate data</li>
@@ -473,22 +473,22 @@ const Landing = () => {
                 </section>
                 
                 <section>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">7. Cookies</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">7. Cookies</h3>
                   <p>
                     We use cookies to improve your experience. You can control cookies through your browser settings.
                   </p>
                 </section>
                 
                 <section>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">8. Contact Us</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">8. Contact Us</h3>
                   <p>
                     For privacy-related questions, contact us at privacy@pgreceipts.com
                   </p>
                 </section>
               </div>
               
-              <div className="mt-8 pt-6 border-t">
-                <p className="text-sm text-gray-500">
+              <div className="mt-8 pt-6 border-t dark:border-gray-700">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   Last updated: {new Date().toLocaleDateString('en-IN', { 
                     day: 'numeric', 
                     month: 'long', 
@@ -525,7 +525,7 @@ const Landing = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className="bg-gray-900 dark:bg-gray-950 text-white py-12">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
@@ -626,7 +626,7 @@ const Landing = () => {
             </div>
           </div>
           
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center">
+          <div className="border-t border-gray-800 dark:border-gray-700 mt-12 pt-8 text-center">
             <p className="text-gray-400">
               &copy; {new Date().getFullYear()} PG Receipts. All rights reserved.
             </p>

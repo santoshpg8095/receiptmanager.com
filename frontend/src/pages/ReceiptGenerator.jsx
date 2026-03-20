@@ -34,19 +34,19 @@ const FormSection = React.memo(({
   toggleSection 
 }) => {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden mb-4">
       <button
         onClick={() => toggleSection(sectionKey)}
-        className="w-full px-4 py-3 sm:px-6 sm:py-4 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 transition-colors flex items-center justify-between"
+        className="w-full px-4 py-3 sm:px-6 sm:py-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 hover:from-gray-100 hover:to-gray-200 dark:hover:from-gray-600 dark:hover:to-gray-700 transition-colors flex items-center justify-between"
       >
         <div className="flex items-center space-x-3">
-          <div className="text-blue-600">{icon}</div>
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+          <div className="text-blue-600 dark:text-blue-400">{icon}</div>
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
             {title}
-            {isRequired && <span className="text-red-500 ml-1">*</span>}
+            {isRequired && <span className="text-red-500 dark:text-red-400 ml-1">*</span>}
           </h3>
         </div>
-        <div className="text-gray-500">
+        <div className="text-gray-500 dark:text-gray-400">
           {expandedSections[sectionKey] ? <FaChevronUp /> : <FaChevronDown />}
         </div>
       </button>
@@ -242,64 +242,62 @@ const ReceiptGenerator = () => {
   }, [formData, calculateTotals, validateForm]);
 
   const handleSubmit = useCallback(async () => {
-  if (!validateForm()) return;
-  
-  setLoading(true);
-  
-  try {
-    const totals = calculateTotals();
-    const submitData = {
-      ...formData,
-      amount: parseFloat(formData.amount),
-      securityDeposit: parseFloat(formData.securityDeposit || 0),
-      electricityCharges: parseFloat(formData.electricityCharges || 0),
-      waterCharges: parseFloat(formData.waterCharges || 0),
-      otherCharges: parseFloat(formData.otherCharges || 0),
-      previousBalance: parseFloat(formData.previousBalance || 0),
-      amountPaid: parseFloat(formData.amountPaid || totals.totalAmount),
-      // Make sure these date fields are included
-      monthlyPaymentDate: formData.monthlyPaymentDate,
-      paidDate: formData.paidDate,
-      // Also include forMonth properly
-      forMonth: formData.forMonth || `${formData.month} ${formData.year}`
-    };
+    if (!validateForm()) return;
+    
+    setLoading(true);
+    
+    try {
+      const totals = calculateTotals();
+      const submitData = {
+        ...formData,
+        amount: parseFloat(formData.amount),
+        securityDeposit: parseFloat(formData.securityDeposit || 0),
+        electricityCharges: parseFloat(formData.electricityCharges || 0),
+        waterCharges: parseFloat(formData.waterCharges || 0),
+        otherCharges: parseFloat(formData.otherCharges || 0),
+        previousBalance: parseFloat(formData.previousBalance || 0),
+        amountPaid: parseFloat(formData.amountPaid || totals.totalAmount),
+        monthlyPaymentDate: formData.monthlyPaymentDate,
+        paidDate: formData.paidDate,
+        forMonth: formData.forMonth || `${formData.month} ${formData.year}`
+      };
 
-    const response = await api.post('/receipts', submitData);
-    
-    setGeneratedReceipt(response.data.receipt);
-    toast.success('Receipt created successfully!');
-    
-    // Reset form
-    setFormData({
-      tenantName: '',
-      tenantEmail: '',
-      tenantPhone: '',
-      roomNumber: '',
-      month: months[new Date().getMonth()],
-      year: currentYear,
-      amount: '',
-      securityDeposit: '',
-      electricityCharges: '',
-      waterCharges: '',
-      otherCharges: '',
-      previousBalance: '',
-      amountPaid: '',
-      paymentMode: 'cash',
-      transactionId: '',
-      receivedFrom: '',
-      forMonth: `${months[new Date().getMonth()]} ${currentYear}`,
-      notes: '',
-      monthlyPaymentDate: today,
-      paidDate: today
-    });
-    
-  } catch (error) {
-    console.error('Submit error:', error);
-    toast.error('Failed to create receipt: ' + (error.response?.data?.message || error.message));
-  } finally {
-    setLoading(false);
-  }
-}, [formData, calculateTotals, validateForm, today]);
+      const response = await api.post('/receipts', submitData);
+      
+      setGeneratedReceipt(response.data.receipt);
+      toast.success('Receipt created successfully!');
+      
+      // Reset form
+      setFormData({
+        tenantName: '',
+        tenantEmail: '',
+        tenantPhone: '',
+        roomNumber: '',
+        month: months[new Date().getMonth()],
+        year: currentYear,
+        amount: '',
+        securityDeposit: '',
+        electricityCharges: '',
+        waterCharges: '',
+        otherCharges: '',
+        previousBalance: '',
+        amountPaid: '',
+        paymentMode: 'cash',
+        transactionId: '',
+        receivedFrom: '',
+        forMonth: `${months[new Date().getMonth()]} ${currentYear}`,
+        notes: '',
+        monthlyPaymentDate: today,
+        paidDate: today
+      });
+      
+    } catch (error) {
+      console.error('Submit error:', error);
+      toast.error('Failed to create receipt: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setLoading(false);
+    }
+  }, [formData, calculateTotals, validateForm, today]);
 
   const handlePrint = useCallback(() => {
     window.print();
@@ -320,20 +318,20 @@ const ReceiptGenerator = () => {
   const totals = calculateTotals();
 
   return (
-    <div className="p-3 sm:p-4 md:p-6">
+    <div className="p-3 sm:p-4 md:p-6 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 min-h-screen transition-colors duration-300">
       <div className="mb-6 sm:mb-8">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Generate Receipt</h1>
-        <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Create a new payment receipt for your tenant</p>
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Generate Receipt</h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1 sm:mt-2 text-sm sm:text-base">Create a new payment receipt for your tenant</p>
       </div>
 
       {previewMode && generatedReceipt ? (
         <div>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Receipt Preview</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Receipt Preview</h2>
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setPreviewMode(false)}
-                className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition text-sm"
+                className="px-3 sm:px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition text-sm"
               >
                 Back to Form
               </button>
@@ -366,23 +364,23 @@ const ReceiptGenerator = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {/* Form Section */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow p-4 sm:p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-4 sm:p-6 transition-colors duration-300">
               {/* Desktop View - Always Visible Sections */}
               <div className="hidden md:block">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   {/* Tenant Details */}
                   <div className="space-y-3 sm:space-y-4">
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 border-b pb-2">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white border-b dark:border-gray-700 pb-2">
                       Tenant Details
                     </h3>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
                         Tenant Name *
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <FaUser className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                          <FaUser className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                         </div>
                         <input
                           type="text"
@@ -390,19 +388,19 @@ const ReceiptGenerator = () => {
                           value={formData.tenantName}
                           onChange={handleChange}
                           required
-                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base"
+                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           placeholder="Enter tenant name"
                         />
                       </div>
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
                         Phone Number *
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <FaPhone className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                          <FaPhone className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                         </div>
                         <input
                           type="tel"
@@ -410,38 +408,38 @@ const ReceiptGenerator = () => {
                           value={formData.tenantPhone}
                           onChange={handleChange}
                           required
-                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base"
+                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           placeholder="9876543210"
                         />
                       </div>
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
                         Email Address (Optional)
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <FaEnvelope className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                          <FaEnvelope className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                         </div>
                         <input
                           type="email"
                           name="tenantEmail"
                           value={formData.tenantEmail}
                           onChange={handleChange}
-                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base"
+                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           placeholder="tenant@example.com"
                         />
                       </div>
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
                         Room Number *
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <FaHome className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                          <FaHome className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                         </div>
                         <input
                           type="text"
@@ -449,7 +447,7 @@ const ReceiptGenerator = () => {
                           value={formData.roomNumber}
                           onChange={handleChange}
                           required
-                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base"
+                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           placeholder="e.g., 101, A-12"
                         />
                       </div>
@@ -458,19 +456,19 @@ const ReceiptGenerator = () => {
                   
                   {/* Payment Details */}
                   <div className="space-y-3 sm:space-y-4">
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 border-b pb-2">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white border-b dark:border-gray-700 pb-2">
                       Payment Details
                     </h3>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
                         Month *
                       </label>
                       <select
                         name="month"
                         value={formData.month}
                         onChange={handleChange}
-                        className="block w-full px-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base"
+                        className="block w-full px-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       >
                         {months.map(month => (
                           <option key={month} value={month}>{month}</option>
@@ -479,14 +477,14 @@ const ReceiptGenerator = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
                         Year *
                       </label>
                       <select
                         name="year"
                         value={formData.year}
                         onChange={handleChange}
-                        className="block w-full px-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base"
+                        className="block w-full px-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       >
                         {years.map(year => (
                           <option key={year} value={year}>{year}</option>
@@ -495,12 +493,12 @@ const ReceiptGenerator = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
                         Rent Amount (₹) *
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <FaRupeeSign className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                          <FaRupeeSign className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                         </div>
                         <input
                           type="number"
@@ -508,7 +506,7 @@ const ReceiptGenerator = () => {
                           value={formData.amount}
                           onChange={handleChange}
                           required
-                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base"
+                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           placeholder="0.00"
                           min="0"
                           step="0.01"
@@ -517,14 +515,14 @@ const ReceiptGenerator = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
                         Payment Mode *
                       </label>
                       <select
                         name="paymentMode"
                         value={formData.paymentMode}
                         onChange={handleChange}
-                        className="block w-full px-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base"
+                        className="block w-full px-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       >
                         <option value="cash">Cash</option>
                         <option value="bank_transfer">Bank Transfer</option>
@@ -536,7 +534,7 @@ const ReceiptGenerator = () => {
                     
                     {formData.paymentMode !== 'cash' && (
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
                           Transaction ID
                         </label>
                         <input
@@ -544,7 +542,7 @@ const ReceiptGenerator = () => {
                           name="transactionId"
                           value={formData.transactionId}
                           onChange={handleChange}
-                          className="block w-full px-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base"
+                          className="block w-full px-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           placeholder="Enter transaction reference"
                         />
                       </div>
@@ -566,7 +564,7 @@ const ReceiptGenerator = () => {
                 >
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Full Name *
                       </label>
                       <input
@@ -575,13 +573,13 @@ const ReceiptGenerator = () => {
                         value={formData.tenantName}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="Enter tenant's full name"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Phone Number *
                       </label>
                       <input
@@ -590,14 +588,14 @@ const ReceiptGenerator = () => {
                         value={formData.tenantPhone}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="9876543210"
                         maxLength={10}
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Email Address
                       </label>
                       <input
@@ -605,13 +603,13 @@ const ReceiptGenerator = () => {
                         name="tenantEmail"
                         value={formData.tenantEmail}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="tenant@example.com"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Room Number *
                       </label>
                       <input
@@ -620,7 +618,7 @@ const ReceiptGenerator = () => {
                         value={formData.roomNumber}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="e.g., 101, A-12"
                       />
                     </div>
@@ -639,14 +637,14 @@ const ReceiptGenerator = () => {
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Month *
                         </label>
                         <select
                           name="month"
                           value={formData.month}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         >
                           {months.map(month => (
                             <option key={month} value={month}>{month}</option>
@@ -655,14 +653,14 @@ const ReceiptGenerator = () => {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Year *
                         </label>
                         <select
                           name="year"
                           value={formData.year}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         >
                           {years.map(year => (
                             <option key={year} value={year}>{year}</option>
@@ -673,7 +671,7 @@ const ReceiptGenerator = () => {
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Monthly Rent (₹) *
                         </label>
                         <input
@@ -682,7 +680,7 @@ const ReceiptGenerator = () => {
                           value={formData.amount}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           placeholder="0.00"
                           min="0"
                           step="0.01"
@@ -690,14 +688,14 @@ const ReceiptGenerator = () => {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Payment Mode *
                         </label>
                         <select
                           name="paymentMode"
                           value={formData.paymentMode}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         >
                           <option value="cash">Cash</option>
                           <option value="bank_transfer">Bank Transfer</option>
@@ -710,7 +708,7 @@ const ReceiptGenerator = () => {
                     
                     {formData.paymentMode !== 'cash' && (
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Transaction ID / Reference
                         </label>
                         <input
@@ -718,7 +716,7 @@ const ReceiptGenerator = () => {
                           name="transactionId"
                           value={formData.transactionId}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           placeholder="Enter transaction reference"
                         />
                       </div>
@@ -730,17 +728,17 @@ const ReceiptGenerator = () => {
               {/* Date Fields */}
               <div className="mt-6 md:mt-8">
                 <div className="hidden md:block">
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 border-b pb-2 mb-3 sm:mb-4">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white border-b dark:border-gray-700 pb-2 mb-3 sm:mb-4">
                     Payment Dates
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
                         Monthly Payment Date *
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <FaCalendar className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                          <FaCalendar className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                         </div>
                         <input
                           type="date"
@@ -748,18 +746,18 @@ const ReceiptGenerator = () => {
                           value={formData.monthlyPaymentDate}
                           onChange={handleChange}
                           required
-                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base"
+                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         />
                       </div>
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
                         Paid Date *
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <FaCalendar className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                          <FaCalendar className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                         </div>
                         <input
                           type="date"
@@ -767,7 +765,7 @@ const ReceiptGenerator = () => {
                           value={formData.paidDate}
                           onChange={handleChange}
                           required
-                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base"
+                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         />
                       </div>
                     </div>
@@ -785,12 +783,12 @@ const ReceiptGenerator = () => {
                   >
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Monthly Payment Date *
                         </label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <FaCalendar className="h-5 w-5 text-gray-400" />
+                            <FaCalendar className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                           </div>
                           <input
                             type="date"
@@ -798,18 +796,18 @@ const ReceiptGenerator = () => {
                             value={formData.monthlyPaymentDate}
                             onChange={handleChange}
                             required
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           />
                         </div>
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Paid Date *
                         </label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <FaCalendar className="h-5 w-5 text-gray-400" />
+                            <FaCalendar className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                           </div>
                           <input
                             type="date"
@@ -817,7 +815,7 @@ const ReceiptGenerator = () => {
                             value={formData.paidDate}
                             onChange={handleChange}
                             required
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           />
                         </div>
                       </div>
@@ -829,24 +827,24 @@ const ReceiptGenerator = () => {
               {/* Additional Charges */}
               <div className="mt-6 md:mt-8">
                 <div className="hidden md:block">
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 border-b pb-2 mb-3 sm:mb-4">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white border-b dark:border-gray-700 pb-2 mb-3 sm:mb-4">
                     Additional Charges (Optional)
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
                         Security Deposit
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <FaRupeeSign className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                          <FaRupeeSign className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                         </div>
                         <input
                           type="number"
                           name="securityDeposit"
                           value={formData.securityDeposit}
                           onChange={handleChange}
-                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base"
+                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           placeholder="0.00"
                           min="0"
                           step="0.01"
@@ -855,19 +853,19 @@ const ReceiptGenerator = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
                         Electricity
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <FaRupeeSign className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                          <FaRupeeSign className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                         </div>
                         <input
                           type="number"
                           name="electricityCharges"
                           value={formData.electricityCharges}
                           onChange={handleChange}
-                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base"
+                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           placeholder="0.00"
                           min="0"
                           step="0.01"
@@ -876,19 +874,19 @@ const ReceiptGenerator = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
                         Water Charges
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <FaRupeeSign className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                          <FaRupeeSign className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                         </div>
                         <input
                           type="number"
                           name="waterCharges"
                           value={formData.waterCharges}
                           onChange={handleChange}
-                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base"
+                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           placeholder="0.00"
                           min="0"
                           step="0.01"
@@ -897,19 +895,19 @@ const ReceiptGenerator = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
                         Other Charges
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <FaRupeeSign className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                          <FaRupeeSign className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                         </div>
                         <input
                           type="number"
                           name="otherCharges"
                           value={formData.otherCharges}
                           onChange={handleChange}
-                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base"
+                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           placeholder="0.00"
                           min="0"
                           step="0.01"
@@ -930,17 +928,17 @@ const ReceiptGenerator = () => {
                   >
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Security Deposit
                         </label>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
+                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">₹</span>
                           <input
                             type="number"
                             name="securityDeposit"
                             value={formData.securityDeposit}
                             onChange={handleChange}
-                            className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            className="w-full pl-8 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                             placeholder="0.00"
                             min="0"
                             step="0.01"
@@ -949,17 +947,17 @@ const ReceiptGenerator = () => {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Electricity
                         </label>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
+                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">₹</span>
                           <input
                             type="number"
                             name="electricityCharges"
                             value={formData.electricityCharges}
                             onChange={handleChange}
-                            className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            className="w-full pl-8 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                             placeholder="0.00"
                             min="0"
                             step="0.01"
@@ -968,17 +966,17 @@ const ReceiptGenerator = () => {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Water Charges
                         </label>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
+                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">₹</span>
                           <input
                             type="number"
                             name="waterCharges"
                             value={formData.waterCharges}
                             onChange={handleChange}
-                            className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            className="w-full pl-8 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                             placeholder="0.00"
                             min="0"
                             step="0.01"
@@ -987,17 +985,17 @@ const ReceiptGenerator = () => {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Other Charges
                         </label>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
+                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">₹</span>
                           <input
                             type="number"
                             name="otherCharges"
                             value={formData.otherCharges}
                             onChange={handleChange}
-                            className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            className="w-full pl-8 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                             placeholder="0.00"
                             min="0"
                             step="0.01"
@@ -1012,24 +1010,24 @@ const ReceiptGenerator = () => {
               {/* Balance Details */}
               <div className="mt-6 md:mt-8">
                 <div className="hidden md:block">
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 border-b pb-2 mb-3 sm:mb-4">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white border-b dark:border-gray-700 pb-2 mb-3 sm:mb-4">
                     Balance Details
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
                         Previous Balance
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <FaRupeeSign className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                          <FaRupeeSign className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                         </div>
                         <input
                           type="number"
                           name="previousBalance"
                           value={formData.previousBalance}
                           onChange={handleChange}
-                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base"
+                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           placeholder="0.00"
                           min="0"
                           step="0.01"
@@ -1038,12 +1036,12 @@ const ReceiptGenerator = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
                         Amount Paid *
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <FaRupeeSign className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                          <FaRupeeSign className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                         </div>
                         <input
                           type="number"
@@ -1051,7 +1049,7 @@ const ReceiptGenerator = () => {
                           value={formData.amountPaid}
                           onChange={handleChange}
                           required
-                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base"
+                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           placeholder="0.00"
                           min="0"
                           step="0.01"
@@ -1060,18 +1058,18 @@ const ReceiptGenerator = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
                         Balance Due
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <FaRupeeSign className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                          <FaRupeeSign className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                         </div>
                         <input
                           type="text"
                           value={totals.balanceDue.toFixed(2)}
                           readOnly
-                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 rounded-lg bg-gray-50 text-sm sm:text-base"
+                          className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm sm:text-base"
                         />
                       </div>
                     </div>
@@ -1089,17 +1087,17 @@ const ReceiptGenerator = () => {
                   >
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Previous Balance
                         </label>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
+                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">₹</span>
                           <input
                             type="number"
                             name="previousBalance"
                             value={formData.previousBalance}
                             onChange={handleChange}
-                            className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            className="w-full pl-8 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                             placeholder="0.00"
                             min="0"
                             step="0.01"
@@ -1108,18 +1106,18 @@ const ReceiptGenerator = () => {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Amount Paid *
                         </label>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
+                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">₹</span>
                           <input
                             type="number"
                             name="amountPaid"
                             value={formData.amountPaid}
                             onChange={handleChange}
                             required
-                            className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            className="w-full pl-8 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                             placeholder="0.00"
                             min="0"
                             step="0.01"
@@ -1128,16 +1126,16 @@ const ReceiptGenerator = () => {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Balance Due
                         </label>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
+                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">₹</span>
                           <input
                             type="text"
                             value={totals.balanceDue.toFixed(2)}
                             readOnly
-                            className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg bg-gray-50 font-semibold"
+                            className="w-full pl-8 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 font-semibold text-gray-900 dark:text-white"
                           />
                         </div>
                       </div>
@@ -1149,7 +1147,7 @@ const ReceiptGenerator = () => {
               {/* Notes */}
               <div className="mt-6 md:mt-8">
                 <div className="hidden md:block">
-                  <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
                     Notes (Optional)
                   </label>
                   <textarea
@@ -1157,7 +1155,7 @@ const ReceiptGenerator = () => {
                     value={formData.notes}
                     onChange={handleChange}
                     rows="3"
-                    className="block w-full px-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base"
+                    className="block w-full px-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     placeholder="Any additional notes or remarks..."
                   />
                 </div>
@@ -1176,7 +1174,7 @@ const ReceiptGenerator = () => {
                       value={formData.notes}
                       onChange={handleChange}
                       rows="3"
-                      className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+                      className="block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       placeholder="Any additional notes or remarks..."
                     />
                   </FormSection>
@@ -1212,7 +1210,7 @@ const ReceiptGenerator = () => {
                     });
                     toast.success('Form cleared');
                   }}
-                  className="px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm sm:text-base order-2 sm:order-1"
+                  className="px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition text-sm sm:text-base order-2 sm:order-1"
                 >
                   Clear Form
                 </button>
@@ -1229,78 +1227,78 @@ const ReceiptGenerator = () => {
           
           {/* Summary Card - Always visible on desktop */}
           <div className="hidden md:block">
-            <div className="bg-white rounded-xl shadow p-4 sm:p-6 sticky top-4 md:top-6">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 border-b pb-2 mb-3 sm:mb-4">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-4 sm:p-6 sticky top-4 md:top-6 transition-colors duration-300">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white border-b dark:border-gray-700 pb-2 mb-3 sm:mb-4">
                 Receipt Summary
               </h3>
               
               <div className="space-y-3 sm:space-y-4">
                 <div className="flex justify-between">
-                  <span className="text-gray-600 text-sm">Monthly Rent:</span>
-                  <span className="font-medium text-sm">₹{parseFloat(formData.amount || 0).toFixed(2)}</span>
+                  <span className="text-gray-600 dark:text-gray-400 text-sm">Monthly Rent:</span>
+                  <span className="font-medium text-sm text-gray-900 dark:text-white">₹{parseFloat(formData.amount || 0).toFixed(2)}</span>
                 </div>
                 
                 {formData.securityDeposit > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600 text-sm">Security Deposit:</span>
-                    <span className="font-medium text-sm">₹{parseFloat(formData.securityDeposit).toFixed(2)}</span>
+                    <span className="text-gray-600 dark:text-gray-400 text-sm">Security Deposit:</span>
+                    <span className="font-medium text-sm text-gray-900 dark:text-white">₹{parseFloat(formData.securityDeposit).toFixed(2)}</span>
                   </div>
                 )}
                 
                 {formData.electricityCharges > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600 text-sm">Electricity:</span>
-                    <span className="font-medium text-sm">₹{parseFloat(formData.electricityCharges).toFixed(2)}</span>
+                    <span className="text-gray-600 dark:text-gray-400 text-sm">Electricity:</span>
+                    <span className="font-medium text-sm text-gray-900 dark:text-white">₹{parseFloat(formData.electricityCharges).toFixed(2)}</span>
                   </div>
                 )}
                 
                 {formData.waterCharges > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600 text-sm">Water Charges:</span>
-                    <span className="font-medium text-sm">₹{parseFloat(formData.waterCharges).toFixed(2)}</span>
+                    <span className="text-gray-600 dark:text-gray-400 text-sm">Water Charges:</span>
+                    <span className="font-medium text-sm text-gray-900 dark:text-white">₹{parseFloat(formData.waterCharges).toFixed(2)}</span>
                   </div>
                 )}
                 
                 {formData.otherCharges > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600 text-sm">Other Charges:</span>
-                    <span className="font-medium text-sm">₹{parseFloat(formData.otherCharges).toFixed(2)}</span>
+                    <span className="text-gray-600 dark:text-gray-400 text-sm">Other Charges:</span>
+                    <span className="font-medium text-sm text-gray-900 dark:text-white">₹{parseFloat(formData.otherCharges).toFixed(2)}</span>
                   </div>
                 )}
                 
-                <div className="border-t pt-3">
+                <div className="border-t dark:border-gray-700 pt-3">
                   <div className="flex justify-between font-semibold">
-                    <span className="text-sm">Total Amount:</span>
-                    <span className="text-green-600 text-sm">₹{totals.totalAmount.toFixed(2)}</span>
+                    <span className="text-sm text-gray-900 dark:text-white">Total Amount:</span>
+                    <span className="text-green-600 dark:text-green-400 text-sm">₹{totals.totalAmount.toFixed(2)}</span>
                   </div>
                 </div>
                 
                 {formData.previousBalance > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600 text-sm">Previous Balance:</span>
-                    <span className="font-medium text-sm">₹{parseFloat(formData.previousBalance).toFixed(2)}</span>
+                    <span className="text-gray-600 dark:text-gray-400 text-sm">Previous Balance:</span>
+                    <span className="font-medium text-sm text-gray-900 dark:text-white">₹{parseFloat(formData.previousBalance).toFixed(2)}</span>
                   </div>
                 )}
                 
-                <div className="flex justify-between font-semibold text-blue-600">
+                <div className="flex justify-between font-semibold text-blue-600 dark:text-blue-400">
                   <span className="text-sm">Amount Paid:</span>
                   <span className="text-sm">₹{totals.amountPaid.toFixed(2)}</span>
                 </div>
                 
                 {totals.balanceDue > 0 && (
-                  <div className="flex justify-between font-semibold text-red-600">
+                  <div className="flex justify-between font-semibold text-red-600 dark:text-red-400">
                     <span className="text-sm">Balance Due:</span>
                     <span className="text-sm">₹{totals.balanceDue.toFixed(2)}</span>
                   </div>
                 )}
               </div>
               
-              <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-blue-50 rounded-lg">
+              <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <div className="flex items-start">
-                  <FaInfoCircle className="text-blue-600 mt-0.5 mr-2 flex-shrink-0" />
+                  <FaInfoCircle className="text-blue-600 dark:text-blue-400 mt-0.5 mr-2 flex-shrink-0" />
                   <div>
-                    <h4 className="font-medium text-blue-800 mb-2 text-sm">Quick Tips:</h4>
-                    <ul className="text-sm text-blue-700 space-y-1">
+                    <h4 className="font-medium text-blue-800 dark:text-blue-400 mb-2 text-sm">Quick Tips:</h4>
+                    <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
                       <li>• All fields marked with * are required</li>
                       <li>• Preview before saving</li>
                       <li>• Email receipt after saving</li>
@@ -1329,13 +1327,13 @@ const ReceiptGenerator = () => {
             className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
             onClick={() => setShowMobileSummary(false)}
           ></div>
-          <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl z-50 transform transition-transform duration-300">
-            <div className="p-4 border-b">
+          <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 rounded-t-2xl shadow-2xl z-50 transform transition-transform duration-300">
+            <div className="p-4 border-b dark:border-gray-700">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Receipt Summary</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Receipt Summary</h3>
                 <button
                   onClick={() => setShowMobileSummary(false)}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                 >
                   <FaTimes className="text-xl" />
                 </button>
@@ -1344,69 +1342,69 @@ const ReceiptGenerator = () => {
             
             <div className="p-4 max-h-96 overflow-y-auto">
               <div className="space-y-3">
-                <div className="flex justify-between py-2 border-b">
-                  <span className="text-gray-600">Monthly Rent:</span>
-                  <span className="font-medium">₹{parseFloat(formData.amount || 0).toFixed(2)}</span>
+                <div className="flex justify-between py-2 border-b dark:border-gray-700">
+                  <span className="text-gray-600 dark:text-gray-400">Monthly Rent:</span>
+                  <span className="font-medium text-gray-900 dark:text-white">₹{parseFloat(formData.amount || 0).toFixed(2)}</span>
                 </div>
                 
                 {formData.securityDeposit > 0 && (
-                  <div className="flex justify-between py-2 border-b">
-                    <span className="text-gray-600">Security Deposit:</span>
-                    <span className="font-medium">₹{parseFloat(formData.securityDeposit).toFixed(2)}</span>
+                  <div className="flex justify-between py-2 border-b dark:border-gray-700">
+                    <span className="text-gray-600 dark:text-gray-400">Security Deposit:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">₹{parseFloat(formData.securityDeposit).toFixed(2)}</span>
                   </div>
                 )}
                 
                 {formData.electricityCharges > 0 && (
-                  <div className="flex justify-between py-2 border-b">
-                    <span className="text-gray-600">Electricity:</span>
-                    <span className="font-medium">₹{parseFloat(formData.electricityCharges).toFixed(2)}</span>
+                  <div className="flex justify-between py-2 border-b dark:border-gray-700">
+                    <span className="text-gray-600 dark:text-gray-400">Electricity:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">₹{parseFloat(formData.electricityCharges).toFixed(2)}</span>
                   </div>
                 )}
                 
                 {formData.waterCharges > 0 && (
-                  <div className="flex justify-between py-2 border-b">
-                    <span className="text-gray-600">Water Charges:</span>
-                    <span className="font-medium">₹{parseFloat(formData.waterCharges).toFixed(2)}</span>
+                  <div className="flex justify-between py-2 border-b dark:border-gray-700">
+                    <span className="text-gray-600 dark:text-gray-400">Water Charges:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">₹{parseFloat(formData.waterCharges).toFixed(2)}</span>
                   </div>
                 )}
                 
                 {formData.otherCharges > 0 && (
-                  <div className="flex justify-between py-2 border-b">
-                    <span className="text-gray-600">Other Charges:</span>
-                    <span className="font-medium">₹{parseFloat(formData.otherCharges).toFixed(2)}</span>
+                  <div className="flex justify-between py-2 border-b dark:border-gray-700">
+                    <span className="text-gray-600 dark:text-gray-400">Other Charges:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">₹{parseFloat(formData.otherCharges).toFixed(2)}</span>
                   </div>
                 )}
                 
                 <div className="py-2">
                   <div className="flex justify-between font-semibold text-lg">
-                    <span>Total Amount:</span>
-                    <span className="text-green-600">₹{totals.totalAmount.toFixed(2)}</span>
+                    <span className="text-gray-900 dark:text-white">Total Amount:</span>
+                    <span className="text-green-600 dark:text-green-400">₹{totals.totalAmount.toFixed(2)}</span>
                   </div>
                 </div>
                 
                 {formData.previousBalance > 0 && (
-                  <div className="flex justify-between py-2 border-b">
-                    <span className="text-gray-600">Previous Balance:</span>
-                    <span className="font-medium">₹{parseFloat(formData.previousBalance).toFixed(2)}</span>
+                  <div className="flex justify-between py-2 border-b dark:border-gray-700">
+                    <span className="text-gray-600 dark:text-gray-400">Previous Balance:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">₹{parseFloat(formData.previousBalance).toFixed(2)}</span>
                   </div>
                 )}
                 
-                <div className="flex justify-between py-2 border-b">
-                  <span className="font-semibold text-blue-600">Amount Paid:</span>
-                  <span className="font-semibold">₹{totals.amountPaid.toFixed(2)}</span>
+                <div className="flex justify-between py-2 border-b dark:border-gray-700">
+                  <span className="font-semibold text-blue-600 dark:text-blue-400">Amount Paid:</span>
+                  <span className="font-semibold text-gray-900 dark:text-white">₹{totals.amountPaid.toFixed(2)}</span>
                 </div>
                 
                 {totals.balanceDue > 0 && (
                   <div className="flex justify-between py-2">
-                    <span className="font-semibold text-red-600">Balance Due:</span>
-                    <span className="font-semibold">₹{totals.balanceDue.toFixed(2)}</span>
+                    <span className="font-semibold text-red-600 dark:text-red-400">Balance Due:</span>
+                    <span className="font-semibold text-gray-900 dark:text-white">₹{totals.balanceDue.toFixed(2)}</span>
                   </div>
                 )}
               </div>
               
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                <h4 className="font-medium text-blue-800 mb-2">Quick Tips:</h4>
-                <ul className="text-sm text-blue-700 space-y-1">
+              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <h4 className="font-medium text-blue-800 dark:text-blue-400 mb-2">Quick Tips:</h4>
+                <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
                   <li>• All fields marked with * are required</li>
                   <li>• Preview before saving</li>
                   <li>• Email receipt after saving</li>

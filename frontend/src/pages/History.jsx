@@ -131,7 +131,7 @@ const History = () => {
         },
       });
       fetchReceipts();
-      fetchDashboardStats(); // Refresh stats after deletion
+      fetchDashboardStats();
     } catch (error) {
       toast.error('Failed to delete receipt', {
         icon: '❌',
@@ -194,7 +194,7 @@ const History = () => {
         },
       });
       fetchReceipts();
-      fetchDashboardStats(); // Refresh stats after email
+      fetchDashboardStats();
     } catch (error) {
       toast.error('Failed to send email', {
         icon: '❌',
@@ -206,14 +206,11 @@ const History = () => {
     navigate(`/receipts/${receiptId}`);
   };
 
-  // Function to export CSV
   const handleExportCSV = async () => {
     try {
-      // Get all receipts for export
       const response = await api.get('/receipts?limit=1000');
       const allReceipts = response.data.receipts;
       
-      // Prepare CSV headers
       const headers = [
         'Receipt Number',
         'Tenant Name',
@@ -231,7 +228,6 @@ const History = () => {
         'Verification Count'
       ];
       
-      // Prepare CSV rows
       const rows = allReceipts.map(receipt => [
         `"${receipt.receiptNumber || ''}"`,
         `"${receipt.tenantName || ''}"`,
@@ -249,10 +245,8 @@ const History = () => {
         `"${receipt.verificationCount || 0}"`
       ]);
       
-      // Combine headers and rows
       const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
       
-      // Create and download CSV file
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -278,11 +272,9 @@ const History = () => {
     }
   };
 
-  // Function to print report
   const handlePrintReport = () => {
     const stats = calculateStats();
     
-    // Create print-friendly content
     const printContent = `
       <!DOCTYPE html>
       <html>
@@ -290,7 +282,7 @@ const History = () => {
         <title>Receipts Report - ${user?.pgName || 'PG Receipts'}</title>
         <style>
           @media print {
-            body { font-family: Arial, sans-serif; margin: 20px; }
+            body { font-family: Arial, sans-serif; margin: 20px; background: white; }
             .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
             .header h1 { margin: 0; color: #2563eb; }
             .header p { margin: 5px 0; color: #666; }
@@ -373,13 +365,11 @@ const History = () => {
       </html>
     `;
     
-    // Open print window
     const printWindow = window.open('', '_blank');
     printWindow.document.write(printContent);
     printWindow.document.close();
     printWindow.focus();
     
-    // Wait for content to load, then print
     setTimeout(() => {
       printWindow.print();
       printWindow.onafterprint = () => printWindow.close();
@@ -404,21 +394,12 @@ const History = () => {
     });
   };
 
-  // Calculate accurate stats using dashboard data
   const calculateStats = () => {
-    // Use dashboard stats for accurate totals
     if (dashboardStats) {
       const stats = dashboardStats.stats;
       const currentDate = new Date();
       const currentMonthName = currentDate.toLocaleString('default', { month: 'long' });
       
-      // Calculate stats from current page receipts
-      const thisMonthReceipts = receipts.filter(receipt => 
-        receipt.month === currentMonthName && 
-        receipt.year === currentYear
-      );
-      
-      // Calculate emailed and pending from current page
       const emailed = receipts.filter(r => r.sentViaEmail === true).length;
       const pending = receipts.filter(r => 
         r.sentViaEmail === false && 
@@ -428,31 +409,19 @@ const History = () => {
       
       const emailedPercentage = receipts.length > 0 ? Math.round((emailed / receipts.length) * 100) : 0;
       
-      console.log('📈 Stats calculated:', {
-        totalReceiptsFromAPI: stats.totalReceipts,
-        currentMonthReceiptsFromAPI: stats.currentMonthReceipts,
-        totalRevenueFromAPI: stats.currentMonthAmount,
-        currentPageReceipts: receipts.length,
-        emailedOnPage: emailed,
-        pendingOnPage: pending
-      });
-      
       return {
-        total: stats.totalReceipts, // Accurate total from dashboard API
-        thisMonth: stats.currentMonthReceipts, // Accurate current month count
-        totalRevenue: stats.currentMonthAmount, // Accurate total revenue
-        thisMonthRevenue: stats.currentMonthAmount, // Same as total for current month
-        emailed, // From current page
-        pending, // From current page
+        total: stats.totalReceipts,
+        thisMonth: stats.currentMonthReceipts,
+        totalRevenue: stats.currentMonthAmount,
+        thisMonthRevenue: stats.currentMonthAmount,
+        emailed,
+        pending,
         emailedPercentage,
         receiptChange: stats.receiptChange ? `${stats.receiptChange >= 0 ? '+' : ''}${stats.receiptChange}%` : '+12% this month',
         revenueChange: stats.amountChange ? `${stats.amountChange >= 0 ? '+' : ''}${stats.amountChange}%` : '+8% from last month'
       };
     }
 
-    // Fallback to local calculation if dashboard stats not available
-    console.warn('⚠️ Dashboard stats not available, using local calculation');
-    
     const currentDate = new Date();
     const currentMonthName = currentDate.toLocaleString('default', { month: 'long' });
     
@@ -461,7 +430,7 @@ const History = () => {
       receipt.year === currentYear
     );
 
-    const total = totalReceipts; // From receipts API response
+    const total = totalReceipts;
     const thisMonth = thisMonthReceipts.length;
     const totalRevenue = receipts.reduce((sum, r) => sum + (parseFloat(r.amountPaid) || 0), 0);
     const thisMonthRevenue = thisMonthReceipts.reduce((sum, r) => sum + (parseFloat(r.amountPaid) || 0), 0);
@@ -487,12 +456,10 @@ const History = () => {
   };
 
   const stats = calculateStats();
-
-  // Check if still loading both receipts and stats
   const isOverallLoading = loading || loadingStats;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-4 md:p-6 lg:p-8 transition-colors duration-300">
       {/* Header */}
       <div className="mb-6 md:mb-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -501,13 +468,13 @@ const History = () => {
               <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-md">
                 <FaHistory className="h-6 w-6 text-white" />
               </div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
                 Receipt History
               </h1>
             </div>
-            <p className="text-gray-600 text-sm md:text-base">View and manage all your generated receipts</p>
+            <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">View and manage all your generated receipts</p>
             {dashboardStats && (
-              <div className="mt-2 flex items-center gap-2 text-xs text-blue-600 bg-blue-50 px-3 py-1 rounded-full inline-flex">
+              <div className="mt-2 flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full inline-flex">
                 <span>📊</span>
                 <span>Live stats loaded from dashboard</span>
               </div>
@@ -528,18 +495,18 @@ const History = () => {
       {isOverallLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6 mb-6 md:mb-8">
           {[1, 2, 3, 4, 5].map((_, index) => (
-            <div key={index} className="bg-gradient-to-br from-gray-200 to-gray-300 text-white rounded-2xl shadow-lg p-5 md:p-6 animate-pulse">
+            <div key={index} className="bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 text-white rounded-2xl shadow-lg p-5 md:p-6 animate-pulse">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <div className="h-4 bg-gray-300 rounded w-24 mb-2"></div>
-                  <div className="h-8 bg-gray-300 rounded w-16"></div>
+                  <div className="h-4 bg-gray-300 dark:bg-gray-500 rounded w-24 mb-2"></div>
+                  <div className="h-8 bg-gray-300 dark:bg-gray-500 rounded w-16"></div>
                 </div>
                 <div className="p-3 bg-gray-400/20 backdrop-blur-sm rounded-xl">
-                  <div className="h-6 w-6 bg-gray-300 rounded"></div>
+                  <div className="h-6 w-6 bg-gray-300 dark:bg-gray-500 rounded"></div>
                 </div>
               </div>
               <div className="pt-4 border-t border-gray-300/20">
-                <div className="h-4 bg-gray-300 rounded w-20"></div>
+                <div className="h-4 bg-gray-300 dark:bg-gray-500 rounded w-20"></div>
               </div>
             </div>
           ))}
@@ -615,33 +582,33 @@ const History = () => {
       )}
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 mb-6 md:mb-8">
-        <div className="p-5 md:p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 mb-6 md:mb-8">
+        <div className="p-5 md:p-6 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <form onSubmit={handleSearchSubmit} className="flex-1">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <FaSearch className="h-5 w-5 text-gray-400" />
+                  <FaSearch className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                 </div>
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={handleSearch}
-                  className="block w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                  className="block w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="Search by tenant name, phone, or receipt number..."
                 />
                 <button
                   type="submit"
                   className="absolute inset-y-0 right-0 pr-4 flex items-center"
                 >
-                  <span className="text-blue-600 font-medium text-sm">Search</span>
+                  <span className="text-blue-600 dark:text-blue-400 font-medium text-sm">Search</span>
                 </button>
               </div>
             </form>
             
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 px-4 py-3 border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all"
+              className="flex items-center gap-2 px-4 py-3 border-2 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
             >
               <FaFilter className="h-4 w-4" />
               <span className="text-sm font-medium">Filters</span>
@@ -649,17 +616,17 @@ const History = () => {
           </div>
 
           {showFilters && (
-            <div className="mt-6 p-5 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100">
+            <div className="mt-6 p-5 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                     Month
                   </label>
                   <div className="relative">
                     <select
                       value={selectedMonth}
                       onChange={(e) => setSelectedMonth(e.target.value)}
-                      className="block w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all appearance-none"
+                      className="block w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all appearance-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     >
                       <option value="">All Months</option>
                       {months.map(month => (
@@ -667,20 +634,20 @@ const History = () => {
                       ))}
                     </select>
                     <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                      <FaCalendar className="text-gray-400" />
+                      <FaCalendar className="text-gray-400 dark:text-gray-500" />
                     </div>
                   </div>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                     Year
                   </label>
                   <div className="relative">
                     <select
                       value={selectedYear}
                       onChange={(e) => setSelectedYear(e.target.value)}
-                      className="block w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all appearance-none"
+                      className="block w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all appearance-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     >
                       <option value="">All Years</option>
                       {years.map(year => (
@@ -691,13 +658,13 @@ const History = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                     Status
                   </label>
                   <select
                     value={selectedStatus}
                     onChange={(e) => setSelectedStatus(e.target.value)}
-                    className="block w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                    className="block w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   >
                     <option value="all">All Status</option>
                     <option value="emailed">Emailed</option>
@@ -708,7 +675,7 @@ const History = () => {
                 <div className="flex items-end">
                   <button
                     onClick={handleFilterReset}
-                    className="w-full px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all font-medium"
+                    className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all font-medium"
                   >
                     Clear Filters
                   </button>
@@ -720,26 +687,26 @@ const History = () => {
       </div>
 
       {/* Receipts Table */}
-      <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 mb-6 md:mb-8">
-        <div className="p-5 md:p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 mb-6 md:mb-8">
+        <div className="p-5 md:p-6 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h3 className="text-lg md:text-xl font-bold text-gray-900">All Receipts</h3>
-              <p className="text-gray-600 text-sm mt-1">
+              <h3 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white">All Receipts</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
                 Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalReceipts)} of {totalReceipts} receipts
               </p>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleExportCSV}
-                className="flex items-center gap-2 px-4 py-3 border-2 border-emerald-600 text-emerald-600 rounded-xl hover:bg-emerald-50 transition-all"
+                className="flex items-center gap-2 px-4 py-3 border-2 border-emerald-600 text-emerald-600 dark:border-emerald-500 dark:text-emerald-400 rounded-xl hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all"
               >
                 <FaDownload className="h-4 w-4" />
                 <span className="text-sm font-medium">Export CSV</span>
               </button>
               <button
                 onClick={handlePrintReport}
-                className="flex items-center gap-2 px-4 py-3 border-2 border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 transition-all"
+                className="flex items-center gap-2 px-4 py-3 border-2 border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-400 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all"
               >
                 <FaPrint className="h-4 w-4" />
                 <span className="text-sm font-medium">Print Report</span>
@@ -752,20 +719,20 @@ const History = () => {
           <div className="p-12 flex items-center justify-center">
             <div className="text-center">
               <Loader size="large" />
-              <p className="mt-4 text-gray-600">Loading receipts...</p>
+              <p className="mt-4 text-gray-600 dark:text-gray-400">Loading receipts...</p>
             </div>
           </div>
         ) : receipts.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
-              <FaFilePdf className="h-12 w-12 text-gray-400" />
+            <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 rounded-full flex items-center justify-center">
+              <FaFilePdf className="h-12 w-12 text-gray-400 dark:text-gray-500" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
               {searchTerm || selectedMonth || selectedYear || selectedStatus !== 'all' 
                 ? 'No matching receipts found' 
                 : 'No receipts generated yet'}
             </h3>
-            <p className="text-gray-600 max-w-md mx-auto mb-6">
+            <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto mb-6">
               {searchTerm || selectedMonth || selectedYear || selectedStatus !== 'all'
                 ? 'Try adjusting your search or filters to find what you\'re looking for'
                 : 'Create your first receipt to start managing payments'
@@ -782,7 +749,7 @@ const History = () => {
               )}
               <button
                 onClick={() => navigate('/receipts')}
-                className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all"
+                className="px-6 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
               >
                 Create First Receipt
               </button>
@@ -793,84 +760,84 @@ const History = () => {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-gray-50">
-                    <th className="text-left p-4 font-semibold text-gray-700 text-sm">Receipt Details</th>
-                    <th className="text-left p-4 font-semibold text-gray-700 text-sm">Tenant Information</th>
-                    <th className="text-left p-4 font-semibold text-gray-700 text-sm">Payment</th>
-                    <th className="text-left p-4 font-semibold text-gray-700 text-sm">Date & Status</th>
-                    <th className="text-left p-4 font-semibold text-gray-700 text-sm">Actions</th>
+                  <tr className="bg-gray-50 dark:bg-gray-700">
+                    <th className="text-left p-4 font-semibold text-gray-700 dark:text-gray-300 text-sm">Receipt Details</th>
+                    <th className="text-left p-4 font-semibold text-gray-700 dark:text-gray-300 text-sm">Tenant Information</th>
+                    <th className="text-left p-4 font-semibold text-gray-700 dark:text-gray-300 text-sm">Payment</th>
+                    <th className="text-left p-4 font-semibold text-gray-700 dark:text-gray-300 text-sm">Date & Status</th>
+                    <th className="text-left p-4 font-semibold text-gray-700 dark:text-gray-300 text-sm">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {receipts.map((receipt) => (
                     <tr 
                       key={receipt._id} 
-                      className="border-b border-gray-100 hover:bg-blue-50/50 transition-colors duration-150 group"
+                      className="border-b border-gray-100 dark:border-gray-700 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-colors duration-150 group"
                     >
                       <td className="p-4">
                         <div className="flex items-center">
-                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center mr-3">
-                            <FaFilePdf className="h-5 w-5 text-blue-600" />
+                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 flex items-center justify-center mr-3">
+                            <FaFilePdf className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                           </div>
                           <div>
-                            <p className="font-bold text-blue-600 text-sm">{receipt.receiptNumber}</p>
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="font-bold text-blue-600 dark:text-blue-400 text-sm">{receipt.receiptNumber}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                               Room {receipt.roomNumber}
                             </p>
                           </div>
                         </div>
-                      </td>
+                       </td>
                       <td className="p-4">
                         <div>
-                          <p className="font-medium text-gray-900 text-sm">{receipt.tenantName}</p>
-                          <p className="text-sm text-gray-500">{receipt.tenantPhone}</p>
+                          <p className="font-medium text-gray-900 dark:text-white text-sm">{receipt.tenantName}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">{receipt.tenantPhone}</p>
                           {receipt.tenantEmail && (
-                            <p className="text-sm text-blue-600 truncate max-w-xs">{receipt.tenantEmail}</p>
+                            <p className="text-sm text-blue-600 dark:text-blue-400 truncate max-w-xs">{receipt.tenantEmail}</p>
                           )}
                         </div>
-                      </td>
+                       </td>
                       <td className="p-4">
                         <div>
-                          <p className="font-bold text-green-600 text-sm">
+                          <p className="font-bold text-green-600 dark:text-green-400 text-sm">
                             ₹{receipt.amountPaid?.toLocaleString('en-IN')}
                           </p>
-                          <p className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded inline-block mt-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded inline-block mt-1">
                             {receipt.forMonth}
                           </p>
                         </div>
-                      </td>
+                       </td>
                       <td className="p-4">
                         <div className="space-y-2">
-                          <div className="flex items-center text-sm text-gray-700">
-                            <FaCalendar className="mr-2 text-gray-400" />
+                          <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                            <FaCalendar className="mr-2 text-gray-400 dark:text-gray-500" />
                             <span>{formatDate(receipt.createdAt)}</span>
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {receipt.sentViaEmail ? (
-                              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
                                 <FaCheckCircle className="h-3 w-3 mr-1" />
                                 Emailed
                               </span>
                             ) : (
-                              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400">
                                 <FaTimesCircle className="h-3 w-3 mr-1" />
                                 Not Emailed
                               </span>
                             )}
                             {receipt.verificationCount > 0 && (
-                              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400">
                                 <FaQrcode className="h-3 w-3 mr-1" />
                                 Verified {receipt.verificationCount}x
                               </span>
                             )}
                           </div>
                         </div>
-                      </td>
+                        </td>
                       <td className="p-4">
                         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                           <button
                             onClick={() => handleEdit(receipt._id)}
-                            className="p-2 bg-indigo-100 text-indigo-600 rounded-lg hover:bg-indigo-200 transition-colors"
+                            className="p-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-800/50 transition-colors"
                             title="Edit Receipt"
                           >
                             <FaEdit className="h-4 w-4" />
@@ -878,7 +845,7 @@ const History = () => {
                           
                           <button
                             onClick={() => handleViewDetails(receipt._id)}
-                            className="p-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 transition-colors"
+                            className="p-2 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-lg hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors"
                             title="View Details"
                           >
                             <FaEye className="h-4 w-4" />
@@ -886,7 +853,7 @@ const History = () => {
                           
                           <button
                             onClick={() => handleDownload(receipt._id, receipt.receiptNumber)}
-                            className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors"
+                            className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800/50 transition-colors"
                             title="Download PDF"
                           >
                             <FaDownload className="h-4 w-4" />
@@ -895,7 +862,7 @@ const History = () => {
                           {receipt.tenantEmail && (
                             <button
                               onClick={() => handleEmail(receipt._id, receipt.tenantEmail)}
-                              className="p-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200 transition-colors"
+                              className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors"
                               title="Email Receipt"
                             >
                               <FaEnvelope className="h-4 w-4" />
@@ -904,13 +871,13 @@ const History = () => {
                           
                           <button
                             onClick={() => handleDelete(receipt._id)}
-                            className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                            className="p-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-800/50 transition-colors"
                             title="Delete Receipt"
                           >
                             <FaTrash className="h-4 w-4" />
                           </button>
                         </div>
-                      </td>
+                        </td>
                     </tr>
                   ))}
                 </tbody>
@@ -918,9 +885,9 @@ const History = () => {
             </div>
 
             {/* Pagination */}
-            <div className="p-5 md:p-6 border-t border-gray-100">
+            <div className="p-5 md:p-6 border-t border-gray-100 dark:border-gray-700">
               <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                <div className="text-sm text-gray-700">
+                <div className="text-sm text-gray-700 dark:text-gray-300">
                   <span className="font-medium">Page {currentPage} of {totalPages}</span>
                   <span className="mx-2">•</span>
                   <span>{totalReceipts} total receipts</span>
@@ -930,9 +897,9 @@ const History = () => {
                   <button
                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
-                    className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   >
-                    <FaChevronLeft className="h-4 w-4" />
+                    <FaChevronLeft className="h-4 w-4 text-gray-700 dark:text-gray-300" />
                   </button>
                   
                   <div className="flex gap-1">
@@ -955,7 +922,7 @@ const History = () => {
                           className={`w-10 h-10 flex items-center justify-center rounded-lg transition-all ${
                             currentPage === pageNum
                               ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md'
-                              : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                              : 'border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                           }`}
                         >
                           {pageNum}
@@ -967,9 +934,9 @@ const History = () => {
                   <button
                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                     disabled={currentPage === totalPages}
-                    className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   >
-                    <FaChevronRight className="h-4 w-4" />
+                    <FaChevronRight className="h-4 w-4 text-gray-700 dark:text-gray-300" />
                   </button>
                 </div>
               </div>
@@ -979,51 +946,51 @@ const History = () => {
       </div>
 
       {/* Summary Section */}
-      <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-        <div className="p-5 md:p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-          <h3 className="text-lg md:text-xl font-bold text-gray-900 flex items-center">
-            <FaChartBar className="mr-2 text-blue-600" />
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+        <div className="p-5 md:p-6 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800">
+          <h3 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white flex items-center">
+            <FaChartBar className="mr-2 text-blue-600 dark:text-blue-400" />
             Quick Summary
           </h3>
         </div>
         <div className="p-5 md:p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
+            <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="font-medium text-blue-800">Recent Activity</h4>
-                <FaHistory className="text-blue-600" />
+                <h4 className="font-medium text-blue-800 dark:text-blue-400">Recent Activity</h4>
+                <FaHistory className="text-blue-600 dark:text-blue-400" />
               </div>
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-gray-700 dark:text-gray-300">
                 {stats.thisMonth || 0} receipts created this month
               </p>
-              <p className="text-sm text-gray-700 mt-1">
+              <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
                 {stats.emailed || 0} emails sent successfully (from current page)
               </p>
             </div>
             
-            <div className="p-4 bg-gradient-to-br from-emerald-50 to-green-100 rounded-xl">
+            <div className="p-4 bg-gradient-to-br from-emerald-50 to-green-100 dark:from-emerald-900/20 dark:to-green-800/20 rounded-xl">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="font-medium text-emerald-800">Revenue Insights</h4>
-                <FaRupeeSign className="text-emerald-600" />
+                <h4 className="font-medium text-emerald-800 dark:text-emerald-400">Revenue Insights</h4>
+                <FaRupeeSign className="text-emerald-600 dark:text-emerald-400" />
               </div>
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-gray-700 dark:text-gray-300">
                 Total: ₹{(stats.totalRevenue || 0).toLocaleString('en-IN')}
               </p>
-              <p className="text-sm text-gray-700 mt-1">
+              <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
                 Average per receipt: ₹{Math.round((stats.totalRevenue || 0) / Math.max(stats.total || 1, 1)).toLocaleString('en-IN')}
               </p>
             </div>
             
-            <div className="p-4 bg-gradient-to-br from-amber-50 to-orange-100 rounded-xl">
+            <div className="p-4 bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-800/20 rounded-xl">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="font-medium text-amber-800">Action Required</h4>
-                <FaRegClock className="text-amber-600" />
+                <h4 className="font-medium text-amber-800 dark:text-amber-400">Action Required</h4>
+                <FaRegClock className="text-amber-600 dark:text-amber-400" />
               </div>
               <div className="space-y-2">
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-gray-700 dark:text-gray-300">
                   {stats.pending || 0} receipts pending email (from current page)
                 </p>
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-gray-700 dark:text-gray-300">
                   {(stats.total || 0) - (stats.emailed || 0)} can be edited
                 </p>
               </div>
@@ -1047,15 +1014,15 @@ const History = () => {
       </div>
 
       {/* Footer */}
-      <div className="mt-8 pt-6 border-t border-gray-200">
-        <div className="text-center text-gray-500 text-sm">
+      <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="text-center text-gray-500 dark:text-gray-400 text-sm">
           <p>History dashboard last updated • {new Date().toLocaleString('en-IN', {
             hour: '2-digit',
             minute: '2-digit'
           })}</p>
           <p className="mt-1">
             Need help with receipts? 
-            <a href="/help" className="text-blue-600 hover:underline ml-1">View documentation</a>
+            <a href="/help" className="text-blue-600 dark:text-blue-400 hover:underline ml-1">View documentation</a>
           </p>
         </div>
       </div>

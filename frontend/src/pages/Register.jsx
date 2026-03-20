@@ -28,12 +28,14 @@ const InputField = React.memo(({
 }) => {
   return (
     <div className="mb-4">
-      <label className="block text-sm font-medium text-gray-700 mb-2">
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          {icon}
+          {React.cloneElement(icon, { 
+            className: "h-5 w-5 text-gray-400 dark:text-gray-500" 
+          })}
         </div>
         <input
           type={type}
@@ -45,9 +47,11 @@ const InputField = React.memo(({
           className={`
             block w-full pl-10 pr-3 py-3 border rounded-xl 
             focus:ring-2 focus:ring-offset-1 transition-all duration-200
+            bg-white dark:bg-gray-800
+            text-gray-900 dark:text-white
             ${error 
-              ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
-              : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+              ? 'border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500' 
+              : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500'
             }
             ${className}
           `}
@@ -62,7 +66,7 @@ const InputField = React.memo(({
         )}
       </div>
       {error && (
-        <p className="mt-1 text-sm text-red-600">{error}</p>
+        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>
       )}
     </div>
   );
@@ -187,7 +191,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <Navbar />
       
       <div className="flex flex-col lg:flex-row items-center justify-center min-h-[calc(100vh-80px)] py-8 px-4">
@@ -198,57 +202,57 @@ const Register = () => {
               <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-2xl">
                 <FaReceipt className="w-8 h-8" />
               </div>
-              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900">PG Receipt Manager</h1>
+              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">PG Receipt Manager</h1>
             </div>
             
-            <p className="text-lg text-gray-600 mb-8">
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
               Streamline your PG management with professional receipts, automated tracking, and seamless tenant communication.
             </p>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-              <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+              <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <GiTakeMyMoney className="w-5 h-5 text-blue-600" />
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                    <GiTakeMyMoney className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <h3 className="font-semibold text-gray-900">Automated Receipts</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Automated Receipts</h3>
                 </div>
-                <p className="text-sm text-gray-600">Generate professional receipts in seconds</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Generate professional receipts in seconds</p>
               </div>
               
-              <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+              <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <FaFileInvoice className="w-5 h-5 text-green-600" />
+                  <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                    <FaFileInvoice className="w-5 h-5 text-green-600 dark:text-green-400" />
                   </div>
-                  <h3 className="font-semibold text-gray-900">Digital Records</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Digital Records</h3>
                 </div>
-                <p className="text-sm text-gray-600">Secure cloud storage for all receipts</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Secure cloud storage for all receipts</p>
               </div>
               
-              <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+              <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-purple-100 rounded-lg">
-                    <FaChartLine className="w-5 h-5 text-purple-600" />
+                  <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                    <FaChartLine className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                   </div>
-                  <h3 className="font-semibold text-gray-900">Analytics Dashboard</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Analytics Dashboard</h3>
                 </div>
-                <p className="text-sm text-gray-600">Track payments and generate reports</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Track payments and generate reports</p>
               </div>
               
-              <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+              <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-indigo-100 rounded-lg">
-                    <FaQrcode className="w-5 h-5 text-indigo-600" />
+                  <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+                    <FaQrcode className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                   </div>
-                  <h3 className="font-semibold text-gray-900">QR Verification</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">QR Verification</h3>
                 </div>
-                <p className="text-sm text-gray-600">Secure digital verification system</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Secure digital verification system</p>
               </div>
             </div>
             
             <div className="hidden lg:block">
-              <div className="flex items-center gap-4 text-gray-600">
+              <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
                 <div className="flex items-center gap-2">
                   <FaCheck className="w-4 h-4 text-green-500" />
                   <span>No credit card required</span>
@@ -268,17 +272,17 @@ const Register = () => {
 
         {/* Right Side - Registration Form */}
         <div className="lg:w-1/2 max-w-xl w-full">
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 sm:p-8">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
             {/* Progress Steps */}
             <div className="mb-8">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                   {currentStep === 1 ? 'Create Your Account' : 'PG Details'}
                 </h2>
-                <span className="text-sm text-gray-500">Step {currentStep} of 2</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">Step {currentStep} of 2</span>
               </div>
               
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                 <div 
                   className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-500"
                   style={{ width: currentStep === 1 ? '50%' : '100%' }}
@@ -286,10 +290,10 @@ const Register = () => {
               </div>
               
               <div className="flex justify-between mt-2">
-                <span className={`text-sm font-medium ${currentStep >= 1 ? 'text-blue-600' : 'text-gray-500'}`}>
+                <span className={`text-sm font-medium ${currentStep >= 1 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`}>
                   Account Info
                 </span>
-                <span className={`text-sm font-medium ${currentStep >= 2 ? 'text-blue-600' : 'text-gray-500'}`}>
+                <span className={`text-sm font-medium ${currentStep >= 2 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`}>
                   PG Setup
                 </span>
               </div>
@@ -301,7 +305,7 @@ const Register = () => {
                   <InputField
                     label="Full Name"
                     name="name"
-                    icon={<FaUser className="h-5 w-5 text-gray-400" />}
+                    icon={<FaUser />}
                     value={formData.name}
                     onChange={handleChange}
                     required
@@ -314,7 +318,7 @@ const Register = () => {
                     label="Email Address"
                     name="email"
                     type="email"
-                    icon={<FaEnvelope className="h-5 w-5 text-gray-400" />}
+                    icon={<FaEnvelope />}
                     value={formData.email}
                     onChange={handleChange}
                     required
@@ -325,12 +329,12 @@ const Register = () => {
                   
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Password <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <FaLock className="h-5 w-5 text-gray-400" />
+                          <FaLock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                         </div>
                         <input
                           type={showPassword ? 'text' : 'password'}
@@ -338,10 +342,10 @@ const Register = () => {
                           value={formData.password}
                           onChange={handleChange}
                           required
-                          className={`block w-full pl-10 pr-12 py-3 border rounded-xl focus:ring-2 focus:ring-offset-1 transition-all duration-200 ${
+                          className={`block w-full pl-10 pr-12 py-3 border rounded-xl focus:ring-2 focus:ring-offset-1 transition-all duration-200 bg-white dark:bg-gray-800 text-gray-900 dark:text-white ${
                             formErrors.password 
-                              ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
-                              : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                              ? 'border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500' 
+                              : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500'
                           }`}
                           placeholder="Minimum 6 characters"
                           autoComplete="new-password"
@@ -353,24 +357,24 @@ const Register = () => {
                           tabIndex={-1}
                         >
                           {showPassword ? (
-                            <FaEyeSlash className="h-5 w-5 text-gray-400" />
+                            <FaEyeSlash className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                           ) : (
-                            <FaEye className="h-5 w-5 text-gray-400" />
+                            <FaEye className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                           )}
                         </button>
                       </div>
                       {formErrors.password && (
-                        <p className="mt-1 text-sm text-red-600">{formErrors.password}</p>
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{formErrors.password}</p>
                       )}
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Confirm Password <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <FaLock className="h-5 w-5 text-gray-400" />
+                          <FaLock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                         </div>
                         <input
                           type={showConfirmPassword ? 'text' : 'password'}
@@ -378,10 +382,10 @@ const Register = () => {
                           value={formData.confirmPassword}
                           onChange={handleChange}
                           required
-                          className={`block w-full pl-10 pr-12 py-3 border rounded-xl focus:ring-2 focus:ring-offset-1 transition-all duration-200 ${
+                          className={`block w-full pl-10 pr-12 py-3 border rounded-xl focus:ring-2 focus:ring-offset-1 transition-all duration-200 bg-white dark:bg-gray-800 text-gray-900 dark:text-white ${
                             formErrors.confirmPassword 
-                              ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
-                              : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                              ? 'border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500' 
+                              : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500'
                           }`}
                           placeholder="Confirm your password"
                           autoComplete="new-password"
@@ -393,32 +397,32 @@ const Register = () => {
                           tabIndex={-1}
                         >
                           {showConfirmPassword ? (
-                            <FaEyeSlash className="h-5 w-5 text-gray-400" />
+                            <FaEyeSlash className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                           ) : (
-                            <FaEye className="h-5 w-5 text-gray-400" />
+                            <FaEye className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                           )}
                         </button>
                       </div>
                       {formErrors.confirmPassword && (
-                        <p className="mt-1 text-sm text-red-600">{formErrors.confirmPassword}</p>
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{formErrors.confirmPassword}</p>
                       )}
                     </div>
                   </div>
                   
-                  <div className="flex items-center p-4 bg-blue-50 rounded-xl">
+                  <div className="flex items-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
                     <input
                       id="terms"
                       type="checkbox"
                       required
-                      className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800"
                     />
-                    <label htmlFor="terms" className="ml-3 text-sm text-gray-700">
+                    <label htmlFor="terms" className="ml-3 text-sm text-gray-700 dark:text-gray-300">
                       I agree to the{' '}
-                      <Link to="/terms" className="text-blue-600 hover:text-blue-500 font-medium">
+                      <Link to="/terms" className="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 font-medium">
                         Terms of Service
                       </Link>{' '}
                       and{' '}
-                      <Link to="/privacy" className="text-blue-600 hover:text-blue-500 font-medium">
+                      <Link to="/privacy" className="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 font-medium">
                         Privacy Policy
                       </Link>
                     </label>
@@ -437,7 +441,7 @@ const Register = () => {
                   <InputField
                     label="PG Name"
                     name="pgName"
-                    icon={<GiHouse className="h-5 w-5 text-gray-400" />}
+                    icon={<GiHouse />}
                     value={formData.pgName}
                     onChange={handleChange}
                     required
@@ -448,7 +452,7 @@ const Register = () => {
                   <InputField
                     label="PG Address"
                     name="pgAddress"
-                    icon={<FaMapMarkerAlt className="h-5 w-5 text-gray-400" />}
+                    icon={<FaMapMarkerAlt />}
                     value={formData.pgAddress}
                     onChange={handleChange}
                     required
@@ -460,7 +464,7 @@ const Register = () => {
                     label="Contact Number"
                     name="pgContact"
                     type="tel"
-                    icon={<FaPhone className="h-5 w-5 text-gray-400" />}
+                    icon={<FaPhone />}
                     value={formData.pgContact}
                     onChange={handleChange}
                     required
@@ -473,7 +477,7 @@ const Register = () => {
                   <InputField
                     label="GSTIN (Optional)"
                     name="gstin"
-                    icon={<FaGem className="h-5 w-5 text-gray-400" />}
+                    icon={<FaGem />}
                     value={formData.gstin}
                     onChange={handleChange}
                     placeholder="22AAAAA0000A1Z5"
@@ -485,7 +489,7 @@ const Register = () => {
                     <button
                       type="button"
                       onClick={prevStep}
-                      className="flex-1 py-3 px-4 border-2 border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-300"
+                      className="flex-1 py-3 px-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-300"
                     >
                       Back
                     </button>
@@ -510,9 +514,9 @@ const Register = () => {
             </form>
 
             <div className="mt-8 text-center">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 Already have an account?{' '}
-                <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+                <Link to="/login" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">
                   Sign in here
                 </Link>
               </p>
@@ -520,7 +524,7 @@ const Register = () => {
             
             {/* Mobile Benefits */}
             <div className="lg:hidden mt-8">
-              <div className="flex items-center justify-center gap-4 text-sm text-gray-600">
+              <div className="flex items-center justify-center gap-4 text-sm text-gray-600 dark:text-gray-400">
                 <div className="flex items-center gap-2">
                   <FaShieldAlt className="w-4 h-4 text-green-500" />
                   <span>Secure</span>

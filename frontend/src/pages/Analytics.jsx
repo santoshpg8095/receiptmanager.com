@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import api from '../api/api';
 import Loader from '../components/Loader';
 import { 
@@ -60,6 +61,7 @@ const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
 
 const Analytics = () => {
   const { user } = useAuth();
+  const { theme } = useTheme();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     stats: {
@@ -97,7 +99,6 @@ const Analytics = () => {
         tenantStats: tenantRes.data
       });
       
-      // Set data with proper defaults
       setStats(statsRes.data || {
         stats: {
           totalReceipts: 0,
@@ -114,7 +115,6 @@ const Analytics = () => {
       setTenantStats(tenantRes.data || []);
     } catch (error) {
       console.error('Failed to fetch analytics data:', error);
-      // Set comprehensive default data structure
       setStats({
         stats: {
           totalReceipts: 0,
@@ -139,7 +139,6 @@ const Analytics = () => {
   };
 
   const exportData = (format) => {
-    // Simple export functionality
     const data = {
       stats,
       analytics,
@@ -155,7 +154,6 @@ const Analytics = () => {
       link.download = `pg-analytics-${selectedYear}.json`;
       link.click();
     } else if (format === 'csv') {
-      // Convert analytics to CSV
       let csv = 'Month,Receipt Count,Total Amount,Average Amount\n';
       analytics.forEach(item => {
         csv += `${item.month},${item.receiptCount || 0},${item.totalAmount || 0},${item.averageAmount || 0}\n`;
@@ -180,8 +178,8 @@ const Analytics = () => {
           description: 'No data available',
           icon: FaChartLine,
           color: 'from-gray-500 to-gray-600',
-          bgColor: 'bg-gradient-to-br from-gray-50 to-gray-100',
-          textColor: 'text-gray-700'
+          bgColor: 'bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700',
+          textColor: 'text-gray-700 dark:text-gray-300'
         },
         {
           id: 2,
@@ -190,8 +188,8 @@ const Analytics = () => {
           description: 'No data available',
           icon: FaAngleUp,
           color: 'from-gray-500 to-gray-600',
-          bgColor: 'bg-gradient-to-br from-gray-50 to-gray-100',
-          textColor: 'text-gray-700'
+          bgColor: 'bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700',
+          textColor: 'text-gray-700 dark:text-gray-300'
         },
         {
           id: 3,
@@ -200,8 +198,8 @@ const Analytics = () => {
           description: 'No data available',
           icon: FaUserCheck,
           color: 'from-gray-500 to-gray-600',
-          bgColor: 'bg-gradient-to-br from-gray-50 to-gray-100',
-          textColor: 'text-gray-700'
+          bgColor: 'bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700',
+          textColor: 'text-gray-700 dark:text-gray-300'
         },
         {
           id: 4,
@@ -210,8 +208,8 @@ const Analytics = () => {
           description: 'No data available',
           icon: FaPercentage,
           color: 'from-gray-500 to-gray-600',
-          bgColor: 'bg-gradient-to-br from-gray-50 to-gray-100',
-          textColor: 'text-gray-700'
+          bgColor: 'bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700',
+          textColor: 'text-gray-700 dark:text-gray-300'
         }
       ];
     }
@@ -236,8 +234,8 @@ const Analytics = () => {
         description: `Highest revenue in ${highestMonth.month || 'No data'}`,
         icon: FaChartLine,
         color: 'from-emerald-500 to-green-500',
-        bgColor: 'bg-gradient-to-br from-emerald-50 to-green-50',
-        textColor: 'text-emerald-700'
+        bgColor: 'bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20',
+        textColor: 'text-emerald-700 dark:text-emerald-400'
       },
       {
         id: 2,
@@ -246,8 +244,8 @@ const Analytics = () => {
         description: avgChange >= 0 ? `Up ${avgChange.toFixed(1)}% from last month` : `Down ${Math.abs(avgChange).toFixed(1)}% from last month`,
         icon: avgChange >= 0 ? FaAngleUp : FaAngleDown,
         color: avgChange >= 0 ? 'from-blue-500 to-cyan-500' : 'from-orange-500 to-amber-500',
-        bgColor: avgChange >= 0 ? 'bg-gradient-to-br from-blue-50 to-cyan-50' : 'bg-gradient-to-br from-orange-50 to-amber-50',
-        textColor: avgChange >= 0 ? 'text-blue-700' : 'text-amber-700'
+        bgColor: avgChange >= 0 ? 'bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20' : 'bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20',
+        textColor: avgChange >= 0 ? 'text-blue-700 dark:text-blue-400' : 'text-amber-700 dark:text-amber-400'
       },
       {
         id: 3,
@@ -256,8 +254,8 @@ const Analytics = () => {
         description: `${topTenant?._id?.substring(0, 15) || 'N/A'} contributes most`,
         icon: FaUserCheck,
         color: 'from-purple-500 to-violet-500',
-        bgColor: 'bg-gradient-to-br from-purple-50 to-violet-50',
-        textColor: 'text-purple-700'
+        bgColor: 'bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20',
+        textColor: 'text-purple-700 dark:text-purple-400'
       },
       {
         id: 4,
@@ -266,24 +264,24 @@ const Analytics = () => {
         description: (stats?.stats?.amountChange || 0) >= 0 ? 'Revenue increased' : 'Revenue decreased',
         icon: (stats?.stats?.amountChange || 0) >= 0 ? FaPercentage : FaAngleDown,
         color: (stats?.stats?.amountChange || 0) >= 0 ? 'from-green-500 to-teal-500' : 'from-rose-500 to-pink-500',
-        bgColor: (stats?.stats?.amountChange || 0) >= 0 ? 'bg-gradient-to-br from-green-50 to-teal-50' : 'bg-gradient-to-br from-rose-50 to-pink-50',
-        textColor: (stats?.stats?.amountChange || 0) >= 0 ? 'text-green-700' : 'text-rose-700'
+        bgColor: (stats?.stats?.amountChange || 0) >= 0 ? 'bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20' : 'bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20',
+        textColor: (stats?.stats?.amountChange || 0) >= 0 ? 'text-green-700 dark:text-green-400' : 'text-rose-700 dark:text-rose-400'
       }
     ];
   }, [analytics, tenantStats, stats]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-center">
           <Loader size="large" />
-          <p className="mt-4 text-gray-600">Loading your analytics dashboard...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading your analytics dashboard...</p>
         </div>
       </div>
     );
   }
 
-  // Prepare chart data
+  // Prepare chart data with dark mode colors
   const revenueChartData = {
     labels: analytics.length > 0 
       ? analytics.map(a => a.month?.substring(0, 3) || '')
@@ -294,12 +292,12 @@ const Analytics = () => {
         data: analytics.length > 0 
           ? analytics.map(a => a.totalAmount || 0)
           : Array(12).fill(0),
-        borderColor: 'rgb(99, 102, 241)',
-        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        borderColor: theme === 'dark' ? 'rgb(129, 140, 248)' : 'rgb(99, 102, 241)',
+        backgroundColor: theme === 'dark' ? 'rgba(129, 140, 248, 0.1)' : 'rgba(99, 102, 241, 0.1)',
         fill: true,
         tension: 0.4,
-        pointBackgroundColor: 'rgb(99, 102, 241)',
-        pointBorderColor: '#fff',
+        pointBackgroundColor: theme === 'dark' ? 'rgb(129, 140, 248)' : 'rgb(99, 102, 241)',
+        pointBorderColor: theme === 'dark' ? '#1f2937' : '#fff',
         pointBorderWidth: 2,
         pointRadius: 4,
       },
@@ -308,13 +306,13 @@ const Analytics = () => {
         data: analytics.length > 0 
           ? analytics.map(a => a.receiptCount || 0)
           : Array(12).fill(0),
-        borderColor: 'rgb(16, 185, 129)',
-        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        borderColor: theme === 'dark' ? 'rgb(52, 211, 153)' : 'rgb(16, 185, 129)',
+        backgroundColor: theme === 'dark' ? 'rgba(52, 211, 153, 0.1)' : 'rgba(16, 185, 129, 0.1)',
         fill: true,
         tension: 0.4,
         yAxisID: 'y1',
-        pointBackgroundColor: 'rgb(16, 185, 129)',
-        pointBorderColor: '#fff',
+        pointBackgroundColor: theme === 'dark' ? 'rgb(52, 211, 153)' : 'rgb(16, 185, 129)',
+        pointBorderColor: theme === 'dark' ? '#1f2937' : '#fff',
         pointBorderWidth: 2,
         pointRadius: 4,
       },
@@ -331,8 +329,8 @@ const Analytics = () => {
         data: analytics.length > 0 
           ? analytics.map(a => a.receiptCount || 0)
           : Array(12).fill(0),
-        backgroundColor: 'rgba(139, 92, 246, 0.8)',
-        borderColor: 'rgb(139, 92, 246)',
+        backgroundColor: theme === 'dark' ? 'rgba(167, 139, 250, 0.8)' : 'rgba(139, 92, 246, 0.8)',
+        borderColor: theme === 'dark' ? 'rgb(167, 139, 250)' : 'rgb(139, 92, 246)',
         borderWidth: 1,
         borderRadius: 6,
         borderSkipped: false,
@@ -413,10 +411,11 @@ const Analytics = () => {
           },
           padding: 20,
           usePointStyle: true,
+          color: theme === 'dark' ? '#e5e7eb' : '#374151',
         }
       },
       tooltip: {
-        backgroundColor: 'rgba(17, 24, 39, 0.9)',
+        backgroundColor: theme === 'dark' ? 'rgba(31, 41, 55, 0.9)' : 'rgba(17, 24, 39, 0.9)',
         titleColor: '#f3f4f6',
         bodyColor: '#f3f4f6',
         padding: 12,
@@ -439,7 +438,7 @@ const Analytics = () => {
       y: {
         beginAtZero: true,
         grid: {
-          color: 'rgba(229, 231, 235, 0.5)'
+          color: theme === 'dark' ? 'rgba(75, 85, 99, 0.3)' : 'rgba(229, 231, 235, 0.5)'
         },
         ticks: {
           callback: (value) => {
@@ -448,17 +447,19 @@ const Analytics = () => {
           },
           font: {
             size: 11
-          }
+          },
+          color: theme === 'dark' ? '#9ca3af' : '#374151'
         }
       },
       x: {
         grid: {
-          color: 'rgba(229, 231, 235, 0.3)'
+          color: theme === 'dark' ? 'rgba(75, 85, 99, 0.3)' : 'rgba(229, 231, 235, 0.3)'
         },
         ticks: {
           font: {
             size: 11
-          }
+          },
+          color: theme === 'dark' ? '#9ca3af' : '#374151'
         }
       },
       y1: {
@@ -470,14 +471,15 @@ const Analytics = () => {
         ticks: {
           font: {
             size: 11
-          }
-        },
+          },
+          color: theme === 'dark' ? '#9ca3af' : '#374151'
+        }
       },
     },
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-4 md:p-6 lg:p-8 transition-colors duration-300">
       {/* Header */}
       <div className="mb-8">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
@@ -486,20 +488,20 @@ const Analytics = () => {
               <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-md">
                 <FaChartLine className="h-6 w-6 text-white" />
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+              <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
                 Analytics Dashboard
               </h1>
             </div>
-            <p className="text-gray-600 ml-1">Deep insights into your PG revenue and performance metrics</p>
+            <p className="text-gray-600 dark:text-gray-400 ml-1">Deep insights into your PG revenue and performance metrics</p>
           </div>
           
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full lg:w-auto">
-            <div className="flex items-center gap-3 bg-white rounded-xl shadow-sm px-4 py-3 border border-gray-200">
-              <FaCalendarAlt className="text-gray-400" />
+            <div className="flex items-center gap-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm px-4 py-3 border border-gray-200 dark:border-gray-700">
+              <FaCalendarAlt className="text-gray-400 dark:text-gray-500" />
               <select
                 value={selectedYear}
                 onChange={(e) => handleYearChange(parseInt(e.target.value))}
-                className="bg-transparent border-none focus:ring-0 text-gray-700 font-medium"
+                className="bg-transparent border-none focus:ring-0 text-gray-700 dark:text-gray-300 font-medium"
               >
                 {years.map(year => (
                   <option key={year} value={year}>{year}</option>
@@ -510,10 +512,10 @@ const Analytics = () => {
             <div className="flex gap-2">
               <button
                 onClick={() => exportData('json')}
-                className="flex items-center gap-2 px-4 py-3 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 shadow-sm hover:shadow-md"
+                className="flex items-center gap-2 px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 shadow-sm hover:shadow-md"
               >
-                <FaDownload className="text-gray-600" />
-                <span className="font-medium text-gray-700 hidden sm:inline">JSON</span>
+                <FaDownload className="text-gray-600 dark:text-gray-400" />
+                <span className="font-medium text-gray-700 dark:text-gray-300 hidden sm:inline">JSON</span>
               </button>
               <button
                 onClick={() => exportData('csv')}
@@ -536,9 +538,9 @@ const Analytics = () => {
             change: stats?.stats?.amountChange || 0,
             icon: FaRupeeSign,
             iconBg: 'from-emerald-500 to-green-500',
-            cardBg: 'bg-gradient-to-br from-white to-emerald-50',
+            cardBg: 'bg-gradient-to-br from-white to-emerald-50 dark:from-gray-800 dark:to-emerald-900/20',
             trendIcon: FaAngleUp,
-            trendColor: 'text-emerald-600'
+            trendColor: 'text-emerald-600 dark:text-emerald-400'
           },
           {
             title: 'Total Receipts',
@@ -546,16 +548,16 @@ const Analytics = () => {
             change: stats?.stats?.receiptChange || 0,
             icon: FaReceipt,
             iconBg: 'from-blue-500 to-cyan-500',
-            cardBg: 'bg-gradient-to-br from-white to-blue-50',
+            cardBg: 'bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-blue-900/20',
             trendIcon: FaAngleUp,
-            trendColor: 'text-blue-600'
+            trendColor: 'text-blue-600 dark:text-blue-400'
           },
           {
             title: 'Active Tenants',
             value: tenantStats.length,
             icon: FaUsers,
             iconBg: 'from-purple-500 to-violet-500',
-            cardBg: 'bg-gradient-to-br from-white to-purple-50',
+            cardBg: 'bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/20',
             topTenant: tenantStats[0]?._id?.substring(0, 12) + (tenantStats[0]?._id?.length > 12 ? '...' : '')
           },
           {
@@ -566,22 +568,22 @@ const Analytics = () => {
             ).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`,
             icon: FaChartLine,
             iconBg: 'from-amber-500 to-orange-500',
-            cardBg: 'bg-gradient-to-br from-white to-amber-50',
+            cardBg: 'bg-gradient-to-br from-white to-amber-50 dark:from-gray-800 dark:to-amber-900/20',
             month: `${months[new Date().getMonth()]} ${selectedYear}`
           }
         ].map((card, index) => (
-          <div key={index} className={`${card.cardBg} rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100`}>
+          <div key={index} className={`${card.cardBg} rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100 dark:border-gray-700`}>
             <div className="flex justify-between items-start mb-4">
               <div>
-                <p className="text-sm font-medium text-gray-500 mb-1">{card.title}</p>
-                <p className="text-2xl md:text-3xl font-bold text-gray-900">{card.value}</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{card.title}</p>
+                <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">{card.value}</p>
               </div>
               <div className={`p-3 rounded-xl bg-gradient-to-br ${card.iconBg} shadow-md`}>
                 <card.icon className="h-6 w-6 text-white" />
               </div>
             </div>
             
-            <div className="pt-4 border-t border-gray-100">
+            <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
               {card.change !== undefined ? (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
@@ -590,20 +592,20 @@ const Analytics = () => {
                       {Math.abs(card.change)}%
                     </span>
                   </div>
-                  <span className="text-xs text-gray-500">from last month</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">from last month</span>
                 </div>
               ) : card.topTenant ? (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <FaUserCheck className="text-purple-500 mr-2" />
-                    <span className="text-sm text-gray-700">Top: {card.topTenant}</span>
+                    <FaUserCheck className="text-purple-500 dark:text-purple-400 mr-2" />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Top: {card.topTenant}</span>
                   </div>
                 </div>
               ) : (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <FaCalendar className="text-amber-500 mr-2" />
-                    <span className="text-sm text-gray-700">{card.month}</span>
+                    <FaCalendar className="text-amber-500 dark:text-amber-400 mr-2" />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{card.month}</span>
                   </div>
                 </div>
               )}
@@ -617,22 +619,22 @@ const Analytics = () => {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <FaLightbulb className="h-5 w-5 text-amber-500" />
-            <h2 className="text-xl font-bold text-gray-900">Quick Insights</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Quick Insights</h2>
           </div>
-          <span className="text-sm text-gray-500">Real-time analytics</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400">Real-time analytics</span>
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {insights.map((insight) => (
             <div
               key={insight.id}
-              className={`${insight.bgColor} rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer transform hover:-translate-y-1`}
+              className={`${insight.bgColor} rounded-xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer transform hover:-translate-y-1`}
               onClick={() => setActiveInsight(activeInsight === insight.id ? null : insight.id)}
             >
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">{insight.title}</p>
-                  <p className="text-xl font-bold text-gray-900">{insight.value}</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">{insight.title}</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-white">{insight.value}</p>
                 </div>
                 <div className={`p-2 rounded-lg bg-gradient-to-br ${insight.color}`}>
                   <insight.icon className="h-4 w-4 text-white" />
@@ -649,21 +651,21 @@ const Analytics = () => {
       {/* Main Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Revenue vs Receipts Chart */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-          <div className="p-6 border-b border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+          <div className="p-6 border-b border-gray-100 dark:border-gray-700">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h3 className="text-xl font-bold text-gray-900">Revenue vs Receipts Trend</h3>
-                <p className="text-gray-600 text-sm mt-1">Monthly comparison for {selectedYear}</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Revenue vs Receipts Trend</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">Monthly comparison for {selectedYear}</p>
               </div>
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-indigo-500"></div>
-                  <span className="text-sm text-gray-600">Revenue</span>
+                  <div className="w-3 h-3 rounded-full bg-indigo-500 dark:bg-indigo-400"></div>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Revenue</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
-                  <span className="text-sm text-gray-600">Receipts</span>
+                  <div className="w-3 h-3 rounded-full bg-emerald-500 dark:bg-emerald-400"></div>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Receipts</span>
                 </div>
               </div>
             </div>
@@ -679,14 +681,14 @@ const Analytics = () => {
         </div>
 
         {/* Receipt Trends Chart */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-          <div className="p-6 border-b border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+          <div className="p-6 border-b border-gray-100 dark:border-gray-700">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h3 className="text-xl font-bold text-gray-900">Receipt Generation</h3>
-                <p className="text-gray-600 text-sm mt-1">Monthly receipt count distribution</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Receipt Generation</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">Monthly receipt count distribution</p>
               </div>
-              <div className="text-sm px-3 py-1 bg-violet-100 text-violet-700 rounded-full font-medium">
+              <div className="text-sm px-3 py-1 bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400 rounded-full font-medium">
                 {analytics.reduce((sum, month) => sum + (month.receiptCount || 0), 0)} Total Receipts
               </div>
             </div>
@@ -701,15 +703,19 @@ const Analytics = () => {
                     y: {
                       beginAtZero: true,
                       grid: {
-                        color: 'rgba(229, 231, 235, 0.5)'
+                        color: theme === 'dark' ? 'rgba(75, 85, 99, 0.3)' : 'rgba(229, 231, 235, 0.5)'
                       },
                       ticks: {
-                        callback: (value) => isNaN(value) ? '0' : value
+                        callback: (value) => isNaN(value) ? '0' : value,
+                        color: theme === 'dark' ? '#9ca3af' : '#374151'
                       }
                     },
                     x: {
                       grid: {
-                        color: 'rgba(229, 231, 235, 0.3)'
+                        color: theme === 'dark' ? 'rgba(75, 85, 99, 0.3)' : 'rgba(229, 231, 235, 0.3)'
+                      },
+                      ticks: {
+                        color: theme === 'dark' ? '#9ca3af' : '#374151'
                       }
                     }
                   }
@@ -723,14 +729,14 @@ const Analytics = () => {
       {/* Distribution Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Top Tenants Distribution */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-          <div className="p-6 border-b border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+          <div className="p-6 border-b border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-bold text-gray-900">Top Tenants Distribution</h3>
-                <p className="text-gray-600 text-sm mt-1">By total payment amount</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Top Tenants Distribution</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">By total payment amount</p>
               </div>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 Top 5 tenants
               </div>
             </div>
@@ -752,10 +758,11 @@ const Analytics = () => {
                         },
                         padding: 20,
                         usePointStyle: true,
+                        color: theme === 'dark' ? '#e5e7eb' : '#374151',
                       }
                     },
                     tooltip: {
-                      backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                      backgroundColor: theme === 'dark' ? 'rgba(31, 41, 55, 0.9)' : 'rgba(17, 24, 39, 0.9)',
                       titleColor: '#f3f4f6',
                       bodyColor: '#f3f4f6',
                       padding: 12,
@@ -774,14 +781,14 @@ const Analytics = () => {
         </div>
 
         {/* Payment Methods Distribution */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-          <div className="p-6 border-b border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+          <div className="p-6 border-b border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-bold text-gray-900">Payment Methods</h3>
-                <p className="text-gray-600 text-sm mt-1">Distribution across payment modes</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Payment Methods</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">Distribution across payment modes</p>
               </div>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 {(stats?.paymentModeStats || []).reduce((sum, p) => sum + (p.count || 0), 0)} transactions
               </div>
             </div>
@@ -803,10 +810,11 @@ const Analytics = () => {
                         },
                         padding: 20,
                         usePointStyle: true,
+                        color: theme === 'dark' ? '#e5e7eb' : '#374151',
                       }
                     },
                     tooltip: {
-                      backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                      backgroundColor: theme === 'dark' ? 'rgba(31, 41, 55, 0.9)' : 'rgba(17, 24, 39, 0.9)',
                       titleColor: '#f3f4f6',
                       bodyColor: '#f3f4f6',
                       padding: 12,
@@ -828,41 +836,41 @@ const Analytics = () => {
       {/* Data Tables Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Monthly Breakdown */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-          <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-            <h3 className="text-xl font-bold text-gray-900">Monthly Breakdown - {selectedYear}</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+          <div className="p-6 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">Monthly Breakdown - {selectedYear}</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-50">
-                  <th className="text-left p-4 font-semibold text-gray-700 text-sm">Month</th>
-                  <th className="text-left p-4 font-semibold text-gray-700 text-sm">Receipts</th>
-                  <th className="text-left p-4 font-semibold text-gray-700 text-sm">Revenue</th>
-                  <th className="text-left p-4 font-semibold text-gray-700 text-sm">Average</th>
-                </tr>
+                <tr className="bg-gray-50 dark:bg-gray-700">
+                  <th className="text-left p-4 font-semibold text-gray-700 dark:text-gray-300 text-sm">Month</th>
+                  <th className="text-left p-4 font-semibold text-gray-700 dark:text-gray-300 text-sm">Receipts</th>
+                  <th className="text-left p-4 font-semibold text-gray-700 dark:text-gray-300 text-sm">Revenue</th>
+                  <th className="text-left p-4 font-semibold text-gray-700 dark:text-gray-300 text-sm">Average</th>
+                 </tr>
               </thead>
               <tbody>
                 {analytics.length > 0 ? (
                   analytics.map((monthData, index) => (
-                    <tr key={index} className="border-b border-gray-100 hover:bg-blue-50/50 transition-colors duration-150">
-                      <td className="p-4 font-medium text-gray-900">
+                    <tr key={index} className="border-b border-gray-100 dark:border-gray-700 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-colors duration-150">
+                      <td className="p-4 font-medium text-gray-900 dark:text-white">
                         <div className="flex items-center">
                           <div className={`w-2 h-2 rounded-full mr-3 ${
                             (monthData.receiptCount || 0) > 10 ? 'bg-green-500' :
-                            (monthData.receiptCount || 0) > 5 ? 'bg-blue-500' : 'bg-gray-300'
+                            (monthData.receiptCount || 0) > 5 ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'
                           }`}></div>
                           {monthData.month || 'Unknown'}
                         </div>
                       </td>
                       <td className="p-4">
                         <div className="flex items-center justify-between">
-                          <span className="text-gray-700 font-medium">{monthData.receiptCount || 0}</span>
+                          <span className="text-gray-700 dark:text-gray-300 font-medium">{monthData.receiptCount || 0}</span>
                           {index > 0 && analytics[index - 1] && (
                             <span className={`text-xs px-2 py-1 rounded-full ${
                               (monthData.receiptCount || 0) > (analytics[index - 1].receiptCount || 0) 
-                                ? 'bg-green-100 text-green-700' 
-                                : 'bg-gray-100 text-gray-700'
+                                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' 
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-400'
                             }`}>
                               {(monthData.receiptCount || 0) > (analytics[index - 1].receiptCount || 0) ? '↗' : '↘'}
                             </span>
@@ -870,12 +878,12 @@ const Analytics = () => {
                         </div>
                       </td>
                       <td className="p-4">
-                        <div className="font-bold text-green-600">
+                        <div className="font-bold text-green-600 dark:text-green-400">
                           ₹{(monthData.totalAmount || 0).toLocaleString('en-IN')}
                         </div>
                       </td>
                       <td className="p-4">
-                        <div className="text-gray-700 font-medium">
+                        <div className="text-gray-700 dark:text-gray-300 font-medium">
                           ₹{(monthData.averageAmount || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                         </div>
                       </td>
@@ -883,7 +891,7 @@ const Analytics = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="p-8 text-center text-gray-500">
+                    <td colSpan="4" className="p-8 text-center text-gray-500 dark:text-gray-400">
                       No analytics data available for {selectedYear}
                     </td>
                   </tr>
@@ -894,46 +902,46 @@ const Analytics = () => {
         </div>
 
         {/* Top Tenants Table */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-          <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-            <h3 className="text-xl font-bold text-gray-900">Top Tenants</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+          <div className="p-6 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">Top Tenants</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-50">
-                  <th className="text-left p-4 font-semibold text-gray-700 text-sm">Tenant</th>
-                  <th className="text-left p-4 font-semibold text-gray-700 text-sm">Total Paid</th>
-                  <th className="text-left p-4 font-semibold text-gray-700 text-sm">Receipts</th>
-                  <th className="text-left p-4 font-semibold text-gray-700 text-sm">First Payment</th>
-                </tr>
+                <tr className="bg-gray-50 dark:bg-gray-700">
+                  <th className="text-left p-4 font-semibold text-gray-700 dark:text-gray-300 text-sm">Tenant</th>
+                  <th className="text-left p-4 font-semibold text-gray-700 dark:text-gray-300 text-sm">Total Paid</th>
+                  <th className="text-left p-4 font-semibold text-gray-700 dark:text-gray-300 text-sm">Receipts</th>
+                  <th className="text-left p-4 font-semibold text-gray-700 dark:text-gray-300 text-sm">First Payment</th>
+                 </tr>
               </thead>
               <tbody>
                 {tenantStats.length > 0 ? (
                   tenantStats.slice(0, 8).map((tenant, index) => (
-                    <tr key={index} className="border-b border-gray-100 hover:bg-purple-50/50 transition-colors duration-150">
+                    <tr key={index} className="border-b border-gray-100 dark:border-gray-700 hover:bg-purple-50/50 dark:hover:bg-purple-900/20 transition-colors duration-150">
                       <td className="p-4">
                         <div className="flex items-center">
                           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm mr-3">
                             {(tenant._id?.charAt(0) || '?').toUpperCase()}
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900">{tenant._id?.substring(0, 18) || 'Unknown'}{tenant._id?.length > 18 ? '...' : ''}</p>
+                            <p className="font-medium text-gray-900 dark:text-white">{tenant._id?.substring(0, 18) || 'Unknown'}{tenant._id?.length > 18 ? '...' : ''}</p>
                           </div>
                         </div>
                       </td>
                       <td className="p-4">
-                        <div className="font-bold text-green-600">
+                        <div className="font-bold text-green-600 dark:text-green-400">
                           ₹{(tenant.totalPaid || 0).toLocaleString('en-IN')}
                         </div>
                       </td>
                       <td className="p-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400">
                           {tenant.receiptCount || 0}
                         </span>
                       </td>
                       <td className="p-4">
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
                           {tenant.firstPayment ? new Date(tenant.firstPayment).toLocaleDateString('en-IN', {
                             month: 'short',
                             year: 'numeric'
@@ -944,7 +952,7 @@ const Analytics = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="p-8 text-center text-gray-500">
+                    <td colSpan="4" className="p-8 text-center text-gray-500 dark:text-gray-400">
                       No tenant data available
                     </td>
                   </tr>
@@ -956,7 +964,7 @@ const Analytics = () => {
       </div>
 
       {/* Footer */}
-      <div className="text-center py-6 text-gray-500 text-sm">
+      <div className="text-center py-6 text-gray-500 dark:text-gray-400 text-sm">
         <p>Analytics dashboard last updated • {new Date().toLocaleString('en-IN', {
           day: 'numeric',
           month: 'short',

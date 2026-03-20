@@ -72,10 +72,8 @@ const EditReceipt = () => {
       
       setReceipt(receiptData);
       
-      // Format dates for input fields (YYYY-MM-DD)
       const today = new Date().toISOString().split('T')[0];
       
-      // Set form data
       setFormData({
         tenantName: receiptData.tenantName || '',
         tenantEmail: receiptData.tenantEmail || '',
@@ -117,7 +115,6 @@ const EditReceipt = () => {
       [name]: value
     }));
 
-    // Auto-update forMonth when month/year changes
     if (name === 'month' || name === 'year') {
       setFormData(prev => ({
         ...prev,
@@ -125,7 +122,6 @@ const EditReceipt = () => {
       }));
     }
 
-    // Auto-fill receivedFrom when tenantName changes
     if (name === 'tenantName') {
       setFormData(prev => ({
         ...prev,
@@ -175,7 +171,6 @@ const EditReceipt = () => {
       return false;
     }
     
-    // Validate dates
     if (formData.monthlyPaymentDate && formData.paidDate) {
       const monthlyDate = new Date(formData.monthlyPaymentDate);
       const paidDate = new Date(formData.paidDate);
@@ -272,7 +267,6 @@ const EditReceipt = () => {
       amountInWords: 'Amount in words will be generated after save'
     };
     
-    // Open preview in new tab
     const previewWindow = window.open('', '_blank');
     if (previewWindow) {
       previewWindow.document.write(`
@@ -281,13 +275,13 @@ const EditReceipt = () => {
             <title>Receipt Preview - ${receiptData.receiptNumber}</title>
             <script src="https://cdn.tailwindcss.com"></script>
           </head>
-          <body class="p-8">
+          <body class="p-8 bg-gray-50 dark:bg-gray-900">
             <div class="max-w-4xl mx-auto">
-              <div class="bg-white rounded-lg shadow-lg p-6">
-                <h1 class="text-2xl font-bold mb-6">Receipt Preview</h1>
-                <p class="mb-4">This is a preview of your updated receipt.</p>
-                <pre class="bg-gray-100 p-4 rounded">${JSON.stringify(receiptData, null, 2)}</pre>
-                <button onclick="window.close()" class="mt-6 px-4 py-2 bg-blue-600 text-white rounded">Close Preview</button>
+              <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <h1 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Receipt Preview</h1>
+                <p class="mb-4 text-gray-600 dark:text-gray-400">This is a preview of your updated receipt.</p>
+                <pre class="bg-gray-100 dark:bg-gray-700 p-4 rounded text-gray-800 dark:text-gray-200">${JSON.stringify(receiptData, null, 2)}</pre>
+                <button onclick="window.close()" class="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Close Preview</button>
               </div>
             </div>
           </body>
@@ -301,7 +295,7 @@ const EditReceipt = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-6 flex items-center justify-center">
         <Loader size="large" />
       </div>
     );
@@ -309,11 +303,11 @@ const EditReceipt = () => {
 
   if (!receipt) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-6 flex items-center justify-center">
         <div className="text-center">
-          <FaFileInvoice className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Receipt Not Found</h2>
-          <p className="text-gray-600 mb-6">The receipt you're trying to edit doesn't exist or you don't have permission.</p>
+          <FaFileInvoice className="h-16 w-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Receipt Not Found</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">The receipt you're trying to edit doesn't exist or you don't have permission.</p>
           <button
             onClick={() => navigate('/history')}
             className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all"
@@ -326,7 +320,7 @@ const EditReceipt = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-4 md:p-6 lg:p-8 transition-colors duration-300">
       {/* Header */}
       <div className="mb-6 md:mb-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -334,18 +328,18 @@ const EditReceipt = () => {
             <div className="flex items-center gap-3 mb-2">
               <button
                 onClick={() => navigate('/history')}
-                className="p-2 bg-white rounded-xl shadow-md hover:shadow-lg transition-all"
+                className="p-2 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all"
               >
-                <FaArrowLeft className="h-5 w-5 text-gray-600" />
+                <FaArrowLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
               </button>
               <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-md">
                 <FaEdit className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
                   Edit Receipt
                 </h1>
-                <p className="text-gray-600 text-sm md:text-base">
+                <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">
                   {receipt.receiptNumber} • Created on {new Date(receipt.createdAt).toLocaleDateString('en-IN')}
                 </p>
               </div>
@@ -382,28 +376,28 @@ const EditReceipt = () => {
       </div>
 
       {/* Status Banner */}
-      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100 rounded-2xl p-4 md:p-6 mb-6 md:mb-8">
+      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-100 dark:border-indigo-800 rounded-2xl p-4 md:p-6 mb-6 md:mb-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="flex items-center gap-3">
             <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl">
               <FaReceipt className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h3 className="font-bold text-gray-900">Editing Mode Active</h3>
-              <p className="text-sm text-gray-600">
+              <h3 className="font-bold text-gray-900 dark:text-white">Editing Mode Active</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 Changes made here will update the original receipt. The receipt number and verification hash will remain the same.
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             {receipt.sentViaEmail && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
                 <FaCheckCircle className="h-3 w-3 mr-1" />
                 Email Sent
               </span>
             )}
             {receipt.verificationCount > 0 && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400">
                 Verified {receipt.verificationCount} times
               </span>
             )}
@@ -415,10 +409,10 @@ const EditReceipt = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         {/* Main Form */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-            <div className="p-5 md:p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-              <h3 className="text-lg md:text-xl font-bold text-gray-900 flex items-center">
-                <FaFileInvoice className="mr-2 text-indigo-600" />
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+            <div className="p-5 md:p-6 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800">
+              <h3 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                <FaFileInvoice className="mr-2 text-indigo-600 dark:text-indigo-400" />
                 Receipt Details
               </h3>
             </div>
@@ -426,18 +420,18 @@ const EditReceipt = () => {
             <form onSubmit={handleSubmit} className="p-5 md:p-6 space-y-6">
               {/* Tenant Details Section */}
               <div>
-                <h4 className="text-md font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200 flex items-center">
-                  <FaUser className="mr-2 text-blue-600" />
+                <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                  <FaUser className="mr-2 text-blue-600 dark:text-blue-400" />
                   Tenant Information
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Tenant Name *
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaUser className="h-5 w-5 text-gray-400" />
+                        <FaUser className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       </div>
                       <input
                         type="text"
@@ -445,19 +439,19 @@ const EditReceipt = () => {
                         value={formData.tenantName}
                         onChange={handleChange}
                         required
-                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="Enter tenant name"
                       />
                     </div>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Phone Number *
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaPhone className="h-5 w-5 text-gray-400" />
+                        <FaPhone className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       </div>
                       <input
                         type="tel"
@@ -465,38 +459,38 @@ const EditReceipt = () => {
                         value={formData.tenantPhone}
                         onChange={handleChange}
                         required
-                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="9876543210"
                       />
                     </div>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Email Address
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaEnvelope className="h-5 w-5 text-gray-400" />
+                        <FaEnvelope className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       </div>
                       <input
                         type="email"
                         name="tenantEmail"
                         value={formData.tenantEmail}
                         onChange={handleChange}
-                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="tenant@example.com"
                       />
                     </div>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Room Number *
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaHome className="h-5 w-5 text-gray-400" />
+                        <FaHome className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       </div>
                       <input
                         type="text"
@@ -504,7 +498,7 @@ const EditReceipt = () => {
                         value={formData.roomNumber}
                         onChange={handleChange}
                         required
-                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="e.g., 101, A-12"
                       />
                     </div>
@@ -514,13 +508,13 @@ const EditReceipt = () => {
               
               {/* Payment Dates Section */}
               <div>
-                <h4 className="text-md font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200 flex items-center">
-                  <FaCalendar className="mr-2 text-green-600" />
+                <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                  <FaCalendar className="mr-2 text-green-600 dark:text-green-400" />
                   Payment Dates
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Monthly Payment Date *
                     </label>
                     <input
@@ -529,15 +523,15 @@ const EditReceipt = () => {
                       value={formData.monthlyPaymentDate}
                       onChange={handleChange}
                       required
-                      className="block w-full px-3 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                      className="block w-full px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       Expected payment date for this month
                     </p>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Paid Date *
                     </label>
                     <input
@@ -546,9 +540,9 @@ const EditReceipt = () => {
                       value={formData.paidDate}
                       onChange={handleChange}
                       required
-                      className="block w-full px-3 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                      className="block w-full px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       Actual date when payment was received
                     </p>
                   </div>
@@ -557,20 +551,20 @@ const EditReceipt = () => {
               
               {/* Payment Details Section */}
               <div>
-                <h4 className="text-md font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200 flex items-center">
-                  <FaCalendar className="mr-2 text-purple-600" />
+                <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                  <FaCalendar className="mr-2 text-purple-600 dark:text-purple-400" />
                   Payment Details
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Month *
                     </label>
                     <select
                       name="month"
                       value={formData.month}
                       onChange={handleChange}
-                      className="block w-full px-3 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                      className="block w-full px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     >
                       {months.map(month => (
                         <option key={month} value={month}>{month}</option>
@@ -579,14 +573,14 @@ const EditReceipt = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Year *
                     </label>
                     <select
                       name="year"
                       value={formData.year}
                       onChange={handleChange}
-                      className="block w-full px-3 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                      className="block w-full px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     >
                       {years.map(year => (
                         <option key={year} value={year}>{year}</option>
@@ -595,12 +589,12 @@ const EditReceipt = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Rent Amount (₹) *
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaRupeeSign className="h-5 w-5 text-gray-400" />
+                        <FaRupeeSign className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       </div>
                       <input
                         type="number"
@@ -608,7 +602,7 @@ const EditReceipt = () => {
                         value={formData.amount}
                         onChange={handleChange}
                         required
-                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="0.00"
                         min="0"
                         step="0.01"
@@ -617,14 +611,14 @@ const EditReceipt = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Payment Mode *
                     </label>
                     <select
                       name="paymentMode"
                       value={formData.paymentMode}
                       onChange={handleChange}
-                      className="block w-full px-3 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                      className="block w-full px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     >
                       <option value="cash">Cash</option>
                       <option value="bank_transfer">Bank Transfer</option>
@@ -636,7 +630,7 @@ const EditReceipt = () => {
                   
                   {formData.paymentMode !== 'cash' && (
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Transaction ID
                       </label>
                       <input
@@ -644,7 +638,7 @@ const EditReceipt = () => {
                         name="transactionId"
                         value={formData.transactionId}
                         onChange={handleChange}
-                        className="block w-full px-3 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="block w-full px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="Enter transaction reference"
                       />
                     </div>
@@ -654,24 +648,24 @@ const EditReceipt = () => {
               
               {/* Additional Charges Section */}
               <div>
-                <h4 className="text-md font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
                   Additional Charges
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Security Deposit
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaRupeeSign className="h-5 w-5 text-gray-400" />
+                        <FaRupeeSign className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       </div>
                       <input
                         type="number"
                         name="securityDeposit"
                         value={formData.securityDeposit}
                         onChange={handleChange}
-                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="0.00"
                         min="0"
                         step="0.01"
@@ -680,19 +674,19 @@ const EditReceipt = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Electricity
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaRupeeSign className="h-5 w-5 text-gray-400" />
+                        <FaRupeeSign className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       </div>
                       <input
                         type="number"
                         name="electricityCharges"
                         value={formData.electricityCharges}
                         onChange={handleChange}
-                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="0.00"
                         min="0"
                         step="0.01"
@@ -701,19 +695,19 @@ const EditReceipt = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Water Charges
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaRupeeSign className="h-5 w-5 text-gray-400" />
+                        <FaRupeeSign className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       </div>
                       <input
                         type="number"
                         name="waterCharges"
                         value={formData.waterCharges}
                         onChange={handleChange}
-                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="0.00"
                         min="0"
                         step="0.01"
@@ -722,19 +716,19 @@ const EditReceipt = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Other Charges
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaRupeeSign className="h-5 w-5 text-gray-400" />
+                        <FaRupeeSign className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       </div>
                       <input
                         type="number"
                         name="otherCharges"
                         value={formData.otherCharges}
                         onChange={handleChange}
-                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="0.00"
                         min="0"
                         step="0.01"
@@ -746,24 +740,24 @@ const EditReceipt = () => {
               
               {/* Balance Details Section */}
               <div>
-                <h4 className="text-md font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
                   Balance Details
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Previous Balance
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaRupeeSign className="h-5 w-5 text-gray-400" />
+                        <FaRupeeSign className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       </div>
                       <input
                         type="number"
                         name="previousBalance"
                         value={formData.previousBalance}
                         onChange={handleChange}
-                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="0.00"
                         min="0"
                         step="0.01"
@@ -772,12 +766,12 @@ const EditReceipt = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Amount Paid *
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaRupeeSign className="h-5 w-5 text-gray-400" />
+                        <FaRupeeSign className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       </div>
                       <input
                         type="number"
@@ -785,7 +779,7 @@ const EditReceipt = () => {
                         value={formData.amountPaid}
                         onChange={handleChange}
                         required
-                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="0.00"
                         min="0"
                         step="0.01"
@@ -794,18 +788,18 @@ const EditReceipt = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Balance Due
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaRupeeSign className="h-5 w-5 text-gray-400" />
+                        <FaRupeeSign className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       </div>
                       <input
                         type="text"
                         value={totals.balanceDue.toFixed(2)}
                         readOnly
-                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 rounded-xl bg-gray-50"
+                        className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
                       />
                     </div>
                   </div>
@@ -814,7 +808,7 @@ const EditReceipt = () => {
               
               {/* Notes Section */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Notes
                 </label>
                 <textarea
@@ -822,7 +816,7 @@ const EditReceipt = () => {
                   value={formData.notes}
                   onChange={handleChange}
                   rows="3"
-                  className="block w-full px-3 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                  className="block w-full px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="Any additional notes or remarks..."
                 />
               </div>
@@ -844,88 +838,88 @@ const EditReceipt = () => {
         
         {/* Summary Card */}
         <div>
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 sticky top-6">
-            <div className="p-5 md:p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-              <h3 className="text-lg font-bold text-gray-900 flex items-center">
-                <FaReceipt className="mr-2 text-indigo-600" />
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 sticky top-6">
+            <div className="p-5 md:p-6 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center">
+                <FaReceipt className="mr-2 text-indigo-600 dark:text-indigo-400" />
                 Receipt Summary
               </h3>
             </div>
             
             <div className="p-5 md:p-6 space-y-4">
-              <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
-                <h4 className="font-medium text-blue-800 mb-3">Original Receipt</h4>
+              <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl">
+                <h4 className="font-medium text-blue-800 dark:text-blue-400 mb-3">Original Receipt</h4>
                 <div className="space-y-2">
-                  <p className="text-sm">
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
                     <span className="font-medium">Number:</span> {receipt.receiptNumber}
                   </p>
-                  <p className="text-sm">
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
                     <span className="font-medium">Created:</span> {new Date(receipt.createdAt).toLocaleDateString('en-IN')}
                   </p>
-                  <p className="text-sm">
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
                     <span className="font-medium">Status:</span> {receipt.sentViaEmail ? 'Emailed' : 'Not Emailed'}
                   </p>
-                  <p className="text-sm">
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
                     <span className="font-medium">Verified:</span> {receipt.verificationCount} times
                   </p>
                 </div>
               </div>
               
               <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Monthly Rent:</span>
+                <div className="flex justify-between text-gray-700 dark:text-gray-300">
+                  <span>Monthly Rent:</span>
                   <span className="font-medium">₹{parseFloat(formData.amount || 0).toFixed(2)}</span>
                 </div>
                 
                 {formData.securityDeposit > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Security Deposit:</span>
+                  <div className="flex justify-between text-gray-700 dark:text-gray-300">
+                    <span>Security Deposit:</span>
                     <span className="font-medium">₹{parseFloat(formData.securityDeposit).toFixed(2)}</span>
                   </div>
                 )}
                 
                 {formData.electricityCharges > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Electricity:</span>
+                  <div className="flex justify-between text-gray-700 dark:text-gray-300">
+                    <span>Electricity:</span>
                     <span className="font-medium">₹{parseFloat(formData.electricityCharges).toFixed(2)}</span>
                   </div>
                 )}
                 
                 {formData.waterCharges > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Water Charges:</span>
+                  <div className="flex justify-between text-gray-700 dark:text-gray-300">
+                    <span>Water Charges:</span>
                     <span className="font-medium">₹{parseFloat(formData.waterCharges).toFixed(2)}</span>
                   </div>
                 )}
                 
                 {formData.otherCharges > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Other Charges:</span>
+                  <div className="flex justify-between text-gray-700 dark:text-gray-300">
+                    <span>Other Charges:</span>
                     <span className="font-medium">₹{parseFloat(formData.otherCharges).toFixed(2)}</span>
                   </div>
                 )}
                 
-                <div className="border-t pt-3">
-                  <div className="flex justify-between font-semibold">
+                <div className="border-t dark:border-gray-700 pt-3">
+                  <div className="flex justify-between font-semibold text-gray-900 dark:text-white">
                     <span>Total Amount:</span>
-                    <span className="text-green-600">₹{totals.totalAmount.toFixed(2)}</span>
+                    <span className="text-green-600 dark:text-green-400">₹{totals.totalAmount.toFixed(2)}</span>
                   </div>
                 </div>
                 
                 {formData.previousBalance > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Previous Balance:</span>
+                  <div className="flex justify-between text-gray-700 dark:text-gray-300">
+                    <span>Previous Balance:</span>
                     <span className="font-medium">₹{parseFloat(formData.previousBalance).toFixed(2)}</span>
                   </div>
                 )}
                 
-                <div className="flex justify-between font-semibold text-blue-600">
+                <div className="flex justify-between font-semibold text-blue-600 dark:text-blue-400">
                   <span>Amount Paid:</span>
                   <span>₹{totals.amountPaid.toFixed(2)}</span>
                 </div>
                 
                 {totals.balanceDue > 0 && (
-                  <div className="flex justify-between font-semibold text-red-600">
+                  <div className="flex justify-between font-semibold text-red-600 dark:text-red-400">
                     <span>Balance Due:</span>
                     <span>₹{totals.balanceDue.toFixed(2)}</span>
                   </div>
@@ -933,10 +927,10 @@ const EditReceipt = () => {
               </div>
               
               {/* Date Summary */}
-              <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl">
-                <h4 className="font-medium text-green-800 mb-3">Payment Dates</h4>
+              <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-800/20 rounded-xl">
+                <h4 className="font-medium text-green-800 dark:text-green-400 mb-3">Payment Dates</h4>
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center text-gray-700 dark:text-gray-300">
                     <span className="text-sm">Monthly Due:</span>
                     <span className="text-sm font-medium">
                       {formData.monthlyPaymentDate 
@@ -948,7 +942,7 @@ const EditReceipt = () => {
                         : 'Not set'}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center text-gray-700 dark:text-gray-300">
                     <span className="text-sm">Paid On:</span>
                     <span className="text-sm font-medium">
                       {formData.paidDate 
@@ -963,29 +957,29 @@ const EditReceipt = () => {
                 </div>
               </div>
               
-              <div className="pt-4 border-t">
-                <h4 className="font-medium text-gray-900 mb-3">Editing Notes:</h4>
-                <ul className="text-sm text-gray-600 space-y-2">
+              <div className="pt-4 border-t dark:border-gray-700">
+                <h4 className="font-medium text-gray-900 dark:text-white mb-3">Editing Notes:</h4>
+                <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
                   <li className="flex items-start">
-                    <div className="h-5 w-5 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-2 flex-shrink-0">
+                    <div className="h-5 w-5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mr-2 flex-shrink-0">
                       <span className="text-xs">i</span>
                     </div>
                     <span>Receipt number cannot be changed</span>
                   </li>
                   <li className="flex items-start">
-                    <div className="h-5 w-5 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-2 flex-shrink-0">
+                    <div className="h-5 w-5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mr-2 flex-shrink-0">
                       <span className="text-xs">i</span>
                     </div>
                     <span>Verification hash remains the same</span>
                   </li>
                   <li className="flex items-start">
-                    <div className="h-5 w-5 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-2 flex-shrink-0">
+                    <div className="h-5 w-5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mr-2 flex-shrink-0">
                       <span className="text-xs">i</span>
                     </div>
                     <span>QR code will still verify the receipt</span>
                   </li>
                   <li className="flex items-start">
-                    <div className="h-5 w-5 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-2 flex-shrink-0">
+                    <div className="h-5 w-5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mr-2 flex-shrink-0">
                       <span className="text-xs">!</span>
                     </div>
                     <span>Email status may reset if tenant email changes</span>
@@ -993,7 +987,7 @@ const EditReceipt = () => {
                 </ul>
               </div>
               
-              <div className="pt-4 border-t">
+              <div className="pt-4 border-t dark:border-gray-700">
                 <button
                   onClick={handleSubmit}
                   disabled={saving}
@@ -1014,7 +1008,7 @@ const EditReceipt = () => {
                 
                 <button
                   onClick={() => navigate('/history')}
-                  className="w-full mt-3 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all"
+                  className="w-full mt-3 px-4 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
                 >
                   Cancel & Return
                 </button>
@@ -1023,12 +1017,12 @@ const EditReceipt = () => {
           </div>
           
           {/* Danger Zone */}
-          <div className="mt-6 bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-2xl shadow-xl overflow-hidden">
+          <div className="mt-6 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border border-red-200 dark:border-red-800 rounded-2xl shadow-xl overflow-hidden">
             <div className="p-5 md:p-6">
-              <h4 className="font-bold text-red-800 mb-3 flex items-center">
+              <h4 className="font-bold text-red-800 dark:text-red-400 mb-3 flex items-center">
                 ⚠️ Danger Zone
               </h4>
-              <p className="text-sm text-red-700 mb-4">
+              <p className="text-sm text-red-700 dark:text-red-300 mb-4">
                 Be careful with these actions. They cannot be undone.
               </p>
               <div className="space-y-3">
@@ -1048,7 +1042,7 @@ const EditReceipt = () => {
                       });
                     }
                   }}
-                  className="w-full px-4 py-3 border-2 border-red-600 text-red-600 rounded-xl hover:bg-red-50 transition-all flex items-center justify-center gap-2"
+                  className="w-full px-4 py-3 border-2 border-red-600 dark:border-red-500 text-red-600 dark:text-red-400 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/30 transition-all flex items-center justify-center gap-2"
                 >
                   <FaEnvelope className="h-4 w-4" />
                   Mark as Re-sent
@@ -1060,17 +1054,17 @@ const EditReceipt = () => {
       </div>
       
       {/* Bottom Actions */}
-      <div className="mt-8 pt-6 border-t border-gray-200">
+      <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
         <div className="flex justify-between items-center">
           <button
             onClick={() => navigate(`/receipts/${id}`)}
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+            className="flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
           >
             <FaEye className="h-4 w-4" />
             <span className="text-sm font-medium">View Original Receipt</span>
           </button>
           
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-500 dark:text-gray-400">
             Editing receipt #{receipt.receiptNumber} • Last updated: {new Date(receipt.updatedAt || receipt.createdAt).toLocaleString('en-IN')}
           </div>
         </div>

@@ -10,6 +10,13 @@
   --accent-color: #8B5CF6;
 }
 
+/* Dark mode variables */
+.dark {
+  --primary-color: #60A5FA;
+  --secondary-color: #34D399;
+  --accent-color: #A78BFA;
+}
+
 body {
   margin: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -17,6 +24,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 code {
@@ -24,7 +33,7 @@ code {
     monospace;
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar - Light Mode */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -42,6 +51,19 @@ code {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+/* Custom Scrollbar - Dark Mode */
+.dark ::-webkit-scrollbar-track {
+  background: #1f1f1f;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #4a4a4a;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #6b6b6b;
 }
 
 /* Print Styles */
@@ -87,11 +109,18 @@ code {
     background: rgba(255, 255, 255, 0.1);
   }
   
+  .dark .glass-effect {
+    background: rgba(0, 0, 0, 0.3);
+  }
+  
   .gradient-text {
     @apply bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent;
   }
+  
+  .dark .gradient-text {
+    @apply from-blue-400 to-purple-400;
+  }
 }
-/* Add to your existing index.css */
 
 /* Smooth scrolling */
 html {
@@ -137,6 +166,10 @@ html {
 .feature-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 20px 40px rgba(59, 130, 246, 0.1);
+}
+
+.dark .feature-card:hover {
+  box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
 }
 
 /* Gradient text animation */
@@ -188,11 +221,17 @@ html {
   }
 }
 
-/* Loading skeleton animation */
+/* Loading skeleton animation - Light Mode */
 .skeleton {
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
   animation: skeletonLoading 1.5s infinite;
+}
+
+/* Loading skeleton animation - Dark Mode */
+.dark .skeleton {
+  background: linear-gradient(90deg, #2d2d2d 25%, #3d3d3d 50%, #2d2d2d 75%);
+  background-size: 200% 100%;
 }
 
 @keyframes skeletonLoading {
