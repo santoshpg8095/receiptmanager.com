@@ -1,6 +1,6 @@
 import React from 'react';
 import { ThreeDots, Oval, Rings, TailSpin, Grid } from 'react-loader-spinner';
-import { FaSpinner } from 'react-icons/fa';
+import { FaSpinner, FaSync, FaHourglassHalf } from 'react-icons/fa'; // Add missing imports
 
 const Loader = ({ 
   size = 'medium', 
@@ -151,12 +151,12 @@ const Loader = ({
     if (fullScreen) {
       return 'min-h-screen';
     }
-    return getSizeConfig().container;
+    return '';
   };
 
   const loaderContent = (
     <div className={`flex flex-col items-center justify-center ${getWrapperClass()} ${className}`}>
-      <div className={`${showBackground ? 'p-6 bg-white rounded-2xl shadow-lg border border-gray-100' : ''}`}>
+      <div className={`${showBackground ? 'p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700' : ''}`}>
         <div className="relative">
           {getLoaderComponent()}
           
@@ -196,7 +196,7 @@ const Loader = ({
   // For fullscreen mode, add background overlay
   if (fullScreen) {
     return (
-      <div className="fixed inset-0 z-50 bg-gradient-to-br from-gray-50/95 to-gray-100/95 backdrop-blur-sm">
+      <div className="fixed inset-0 z-50 bg-gradient-to-br from-gray-50/95 to-gray-100/95 dark:from-gray-900/95 dark:to-gray-800/95 backdrop-blur-sm">
         {loaderContent}
       </div>
     );
@@ -211,9 +211,9 @@ export const PageLoader = ({
   showLogo = false,
   subtext = 'Please wait a moment'
 }) => (
-  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
     <div className="w-full max-w-md">
-      <div className="text-center p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200">
+      <div className="text-center p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700">
         {showLogo && (
           <div className="mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl mx-auto flex items-center justify-center">
@@ -227,24 +227,24 @@ export const PageLoader = ({
           type={type}
           color="#3B82F6"
           text={text}
-          textColor="text-gray-700"
+          textColor="text-gray-700 dark:text-gray-300"
         />
         
         {subtext && (
-          <p className="mt-4 text-sm text-gray-500 animate-pulse">
+          <p className="mt-4 text-sm text-gray-500 dark:text-gray-400 animate-pulse">
             {subtext}
           </p>
         )}
         
         {/* Loading progress simulation */}
         <div className="mt-6">
-          <div className="w-full bg-gray-200 rounded-full h-1">
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1">
             <div 
               className="bg-gradient-to-r from-blue-500 to-blue-600 h-1 rounded-full animate-loading-progress"
               style={{ width: '75%' }}
             ></div>
           </div>
-          <div className="flex justify-between text-xs text-gray-500 mt-2">
+          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
             <span>Loading</span>
             <span>Almost there...</span>
           </div>
@@ -336,14 +336,14 @@ export const SkeletonLoader = ({
   className = ''
 }) => {
   const CardSkeleton = () => (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 animate-pulse">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 animate-pulse">
       <div className="flex items-center justify-between">
         <div className="space-y-3 flex-1">
-          <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-          <div className="h-6 bg-gray-300 rounded w-1/2"></div>
-          <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+          <div className="h-6 bg-gray-300 dark:bg-gray-600 rounded w-1/2"></div>
+          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
         </div>
-        <div className="h-12 w-12 bg-gray-200 rounded-lg ml-4"></div>
+        <div className="h-12 w-12 bg-gray-200 dark:bg-gray-700 rounded-lg ml-4"></div>
       </div>
     </div>
   );
@@ -352,10 +352,10 @@ export const SkeletonLoader = ({
     <div className="space-y-3">
       {[...Array(3)].map((_, i) => (
         <div key={i} className="flex items-center space-x-3 animate-pulse">
-          <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+          <div className="h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
           <div className="flex-1 space-y-2">
-            <div className="h-3 bg-gray-200 rounded w-3/4"></div>
-            <div className="h-2 bg-gray-200 rounded w-1/2"></div>
+            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+            <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
           </div>
         </div>
       ))}
@@ -366,13 +366,13 @@ export const SkeletonLoader = ({
     <div className="animate-pulse">
       <div className="flex space-x-4 mb-4">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-4 bg-gray-200 rounded flex-1"></div>
+          <div key={i} className="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
         ))}
       </div>
       {[...Array(5)].map((_, rowIndex) => (
         <div key={rowIndex} className="flex space-x-4 mb-3">
           {[...Array(4)].map((_, colIndex) => (
-            <div key={colIndex} className="h-3 bg-gray-100 rounded flex-1"></div>
+            <div key={colIndex} className="h-3 bg-gray-100 dark:bg-gray-800 rounded flex-1"></div>
           ))}
         </div>
       ))}
@@ -432,13 +432,13 @@ export const ProgressLoader = ({
     <div className="space-y-2">
       {label && (
         <div className="flex justify-between items-center">
-          <span className="text-sm font-medium text-gray-700">{label}</span>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
           {showPercentage && (
-            <span className="text-sm font-bold text-gray-900">{Math.round(progress)}%</span>
+            <span className="text-sm font-bold text-gray-900 dark:text-white">{Math.round(progress)}%</span>
           )}
         </div>
       )}
-      <div className={`w-full bg-gray-200 rounded-full ${sizeClasses[size] || sizeClasses.medium}`}>
+      <div className={`w-full bg-gray-200 dark:bg-gray-700 rounded-full ${sizeClasses[size] || sizeClasses.medium}`}>
         <div 
           className={`bg-gradient-to-r ${colorClasses[color] || colorClasses.blue} ${
             sizeClasses[size] || sizeClasses.medium
@@ -452,7 +452,14 @@ export const ProgressLoader = ({
 
 // Responsive loader with adaptive sizing
 export const ResponsiveLoader = ({ breakpoint = 'md', ...props }) => {
-  const isMobile = window.innerWidth < 768; // Example breakpoint
+  const [isMobile, setIsMobile] = React.useState(false);
+  
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   return (
     <Loader 
@@ -463,3 +470,24 @@ export const ResponsiveLoader = ({ breakpoint = 'md', ...props }) => {
 };
 
 export default Loader;
+
+// Add custom animation for progress bar
+const styles = `
+  @keyframes loading-progress {
+    0% { width: 0%; }
+    50% { width: 75%; }
+    100% { width: 100%; }
+  }
+  
+  .animate-loading-progress {
+    animation: loading-progress 2s ease-in-out infinite;
+  }
+`;
+
+// Inject styles
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement("style");
+  styleSheet.type = "text/css";
+  styleSheet.innerText = styles;
+  document.head.appendChild(styleSheet);
+}
