@@ -28,10 +28,30 @@ const app = express();
 connectDB();
 
 // Security middleware
+// Security middleware
 app.use(helmet());
+
+// Allow multiple frontend URLs
+const allowedOrigins = process.env.FRONTEND_URL
+    ? process.env.FRONTEND_URL.split(",").map(origin => origin.trim())
+    : ["http://localhost:3000"];
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    credentials: true
+    origin: (origin, callback) => {
+        // Allow requests with no origin (Postman, mobile apps, server-to-server)
+        if (!origin) {
+            return callback(null, true);
+        }
+
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+
+        return callback(new Error(`CORS Error: ${origin} is not allowed`));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 // Body parser middleware
