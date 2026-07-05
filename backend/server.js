@@ -12,7 +12,8 @@ const receiptRoutes = require('./routes/receiptRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const emailRoutes = require('./routes/emailRoutes');
 const profileRoutes = require('./routes/profileRoutes');
-const passwordResetRoutes = require('./routes/passwordResetRoutes');
+// ADD THIS NEW IMPORT
+const passwordResetRoutes = require('./routes/passwordResetRoutes'); // 👈 Add this line
 
 // Import middleware
 const { apiLimiter } = require('./middleware/rateLimiter');
@@ -39,15 +40,12 @@ const allowedOrigins = process.env.FRONTEND_URL
 
 app.use(cors({
     origin: (origin, callback) => {
-        // Allow requests without origin (Postman, server-to-server)
         if (!origin) {
             return callback(null, true);
         }
-
         if (allowedOrigins.includes(origin)) {
             return callback(null, true);
         }
-
         return callback(new Error(`CORS Error: ${origin} is not allowed`));
     },
     credentials: true,
@@ -77,7 +75,8 @@ app.use('/api/receipts', receiptRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/profile', profileRoutes);
-app.use('/api/password-reset', passwordResetRoutes);
+// ADD THIS NEW ROUTE
+app.use('/api/password-reset', passwordResetRoutes); // 👈 Add this line
 
 /* ==========================
    Health Check
@@ -108,7 +107,6 @@ app.use((req, res) => {
 
 app.use((err, req, res, next) => {
     console.error(err);
-
     res.status(err.statusCode || 500).json({
         success: false,
         message: err.message || 'Internal Server Error',
