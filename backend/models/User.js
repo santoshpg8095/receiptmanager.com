@@ -70,6 +70,15 @@ const UserSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    // ADD OTP FIELDS (remove resetPasswordToken & resetPasswordExpires)
+    otp: {
+        type: String,
+        default: null
+    },
+    otpExpires: {
+        type: Date,
+        default: null
     }
 });
 
