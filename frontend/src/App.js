@@ -17,7 +17,9 @@ import VerifyReceipt from './pages/VerifyReceipt';
 import ReceiptDetails from './pages/ReceiptDetails';
 import Email from './pages/Email'; 
 import Analytics from './pages/Analytics';
-import EditReceipt from './pages/EditReceipt'; 
+import EditReceipt from './pages/EditReceipt';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword'; 
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -76,6 +78,8 @@ const App = () => {
                     <Route path="/register" element={<Register />} />
                     <Route path="/verify" element={<VerifyReceipt />} />
                     <Route path="/verify/:hash" element={<VerifyReceipt />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
 
                     {/* Protected Routes with Dashboard Layout */}
                     <Route path="/dashboard" element={

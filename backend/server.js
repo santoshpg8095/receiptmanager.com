@@ -12,6 +12,7 @@ const receiptRoutes = require('./routes/receiptRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const emailRoutes = require('./routes/emailRoutes');
 const profileRoutes = require('./routes/profileRoutes');
+const passwordResetRoutes = require('./routes/passwordResetRoutes');
 
 // Import middleware
 const { apiLimiter } = require('./middleware/rateLimiter');
@@ -76,6 +77,7 @@ app.use('/api/receipts', receiptRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/password-reset', passwordResetRoutes);
 
 /* ==========================
    Health Check

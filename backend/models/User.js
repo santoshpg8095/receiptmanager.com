@@ -67,6 +67,14 @@ const UserSchema = new mongoose.Schema({
     deletedAt: {
         type: Date
     },
+    // ADD THESE NEW FIELDS FOR PASSWORD RESET
+    resetPasswordOTP: {
+        type: String,
+        select: false
+    },
+    resetPasswordExpires: {
+        type: Date
+    },
     createdAt: {
         type: Date,
         default: Date.now
