@@ -43,7 +43,7 @@ const ResetPassword = () => {
         setVerifying(true);
         try {
             const response = await axios.post(
-                `${process.env.REACT_APP_API_URL}/api/password-reset/verify-otp`,
+                `${process.env.REACT_APP_API_URL}/password-reset/verify-otp`,
                 { email, otp }
             );
 
@@ -87,7 +87,7 @@ const ResetPassword = () => {
         setLoading(true);
         try {
             const response = await axios.post(
-                `${process.env.REACT_APP_API_URL}/api/password-reset/reset-password`,
+                `${process.env.REACT_APP_API_URL}/password-reset/reset-password`,
                 { email, otp, newPassword }
             );
 

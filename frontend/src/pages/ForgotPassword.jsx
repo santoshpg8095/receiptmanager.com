@@ -33,7 +33,7 @@ const ForgotPassword = () => {
         setLoading(true);
         try {
             const response = await axios.post(
-                `${process.env.REACT_APP_API_URL}/api/password-reset/request-reset`,
+                `${process.env.REACT_APP_API_URL}/password-reset/request-reset`,
                 { email }
             );
 
@@ -55,7 +55,7 @@ const ForgotPassword = () => {
         setLoading(true);
         try {
             const response = await axios.post(
-                `${process.env.REACT_APP_API_URL}/api/password-reset/request-reset`,
+                `${process.env.REACT_APP_API_URL}/password-reset/request-reset`,
                 { email }
             );
 
