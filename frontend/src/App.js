@@ -15,10 +15,9 @@ import History from './pages/History';
 import Profile from './pages/Profile';
 import VerifyReceipt from './pages/VerifyReceipt';
 import ReceiptDetails from './pages/ReceiptDetails';
-import Email from './pages/Email';
+import Email from './pages/Email'; 
 import Analytics from './pages/Analytics';
-import EditReceipt from './pages/EditReceipt';
-import ForgotPassword from './pages/ForgotPassword';
+import EditReceipt from './pages/EditReceipt'; 
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -77,7 +76,6 @@ const App = () => {
                     <Route path="/register" element={<Register />} />
                     <Route path="/verify" element={<VerifyReceipt />} />
                     <Route path="/verify/:hash" element={<VerifyReceipt />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} />
 
                     {/* Protected Routes with Dashboard Layout */}
                     <Route path="/dashboard" element={
@@ -136,12 +134,12 @@ const App = () => {
                         </ProtectedRoute>
                     } />
                     <Route path="/receipts/edit/:id" element={
-                        <ProtectedRoute>
-                            <DashboardLayout>
-                                <EditReceipt />
-                            </DashboardLayout>
-                        </ProtectedRoute>
-                    } />
+  <ProtectedRoute>
+    <DashboardLayout>
+      <EditReceipt />
+    </DashboardLayout>
+  </ProtectedRoute>
+} />
 
                     {/* Fallback Route */}
                     <Route path="*" element={<Navigate to="/" />} />
