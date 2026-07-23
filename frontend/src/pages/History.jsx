@@ -1,8 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/api';
 import toast from 'react-hot-toast';
-import { FaSearch, FaFilter, FaDownload, FaEnvelope, FaEye, FaTrash, FaCalendar, FaFilePdf, FaChartBar, FaRupeeSign, FaUsers, FaHistory, FaChevronLeft, FaChevronRight, FaPrint, FaQrcode, FaCheckCircle, FaTimesCircle, FaRegClock, FaEdit } from 'react-icons/fa';
+import {
+  FaSearch, FaFilter, FaDownload, FaEnvelope, FaEye, FaTrash,
+  FaCalendar, FaFilePdf, FaChartBar, FaRupeeSign, FaHistory,
+  FaChevronLeft, FaChevronRight, FaChevronUp, FaChevronDown,  // <-- ADD THESE
+  FaPrint, FaQrcode, FaCheckCircle, FaTimesCircle, FaRegClock,
+  FaEdit, FaTimes, FaUndo
+} from 'react-icons/fa';
 import Loader from '../components/Loader';
 import { useNavigate } from 'react-router-dom';
 
@@ -12,6 +18,7 @@ const months = [
 ];
 
 const currentYear = new Date().getFullYear();
+const currentMonth = months[new Date().getMonth()];
 const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
 
 const History = () => {
@@ -24,118 +31,126 @@ const History = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalReceipts, setTotalReceipts] = useState(0);
-  
-  // Filters
+
+  // Filter states
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedMonth, setSelectedMonth] = useState('');
-  const [selectedYear, setSelectedYear] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth); // default current month
+  const [selectedYear, setSelectedYear] = useState(currentYear);   // default current year
   const [selectedStatus, setSelectedStatus] = useState('all');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [minAmount, setMinAmount] = useState('');
+  const [maxAmount, setMaxAmount] = useState('');
+  const [selectedPaymentModes, setSelectedPaymentModes] = useState([]);
+  const [isVerified, setIsVerified] = useState('all'); // 'all', 'true', 'false'
+  const [showFilters, setShowFilters] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [printing, setPrinting] = useState(false);
 
   const itemsPerPage = 10;
 
+  // Fetch receipts whenever filters or page change
+  useEffect(() => {
+    fetchReceipts();
+  }, [
+    currentPage, selectedMonth, selectedYear, selectedStatus,
+    searchTerm, startDate, endDate, minAmount, maxAmount,
+    selectedPaymentModes, isVerified
+  ]);
+
   useEffect(() => {
     fetchDashboardStats();
-    fetchReceipts();
-  }, [currentPage, selectedMonth, selectedYear, selectedStatus]);
+  }, []);
 
   const fetchDashboardStats = async () => {
     setLoadingStats(true);
     try {
       const response = await api.get('/dashboard/stats');
       setDashboardStats(response.data);
-      console.log('📊 Dashboard stats loaded:', response.data);
     } catch (error) {
       console.error('Failed to fetch dashboard stats:', error);
-      toast.error('Failed to load dashboard statistics', {
-        icon: '📊',
-        style: {
-          borderRadius: '10px',
-          background: '#EF4444',
-          color: '#fff',
-        },
-      });
+      toast.error('Failed to load dashboard statistics');
     } finally {
       setLoadingStats(false);
     }
   };
 
+  // Build query params for the API
+  const buildQueryParams = useCallback((includePagination = true) => {
+    const params = new URLSearchParams();
+
+    if (includePagination) {
+      params.set('page', currentPage);
+      params.set('limit', itemsPerPage);
+    } else {
+      params.set('limit', 1000); // for export/print fetch all
+    }
+
+    if (searchTerm) params.set('search', searchTerm);
+    if (selectedMonth) params.set('month', selectedMonth);
+    if (selectedYear) params.set('year', selectedYear);
+    if (selectedStatus !== 'all') params.set('status', selectedStatus);
+    if (startDate) params.set('startDate', startDate);
+    if (endDate) params.set('endDate', endDate);
+    if (minAmount) params.set('minAmount', minAmount);
+    if (maxAmount) params.set('maxAmount', maxAmount);
+    if (selectedPaymentModes.length > 0) {
+      params.set('paymentMode', selectedPaymentModes.join(','));
+    }
+    if (isVerified !== 'all') params.set('isVerified', isVerified);
+
+    return params;
+  }, [
+    currentPage, searchTerm, selectedMonth, selectedYear,
+    selectedStatus, startDate, endDate, minAmount, maxAmount,
+    selectedPaymentModes, isVerified
+  ]);
+
   const fetchReceipts = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({
-        page: currentPage,
-        limit: itemsPerPage,
-        ...(searchTerm && { search: searchTerm }),
-        ...(selectedMonth && { month: selectedMonth }),
-        ...(selectedYear && { year: selectedYear }),
-        ...(selectedStatus !== 'all' && { status: selectedStatus })
-      }).toString();
-
-      const response = await api.get(`/receipts?${params}`);
+      const params = buildQueryParams(true);
+      const response = await api.get(`/receipts?${params.toString()}`);
       setReceipts(response.data.receipts);
       setTotalPages(response.data.totalPages);
       setTotalReceipts(response.data.totalReceipts);
-      console.log('📄 Receipts loaded:', {
-        currentPage,
-        itemsOnPage: response.data.receipts.length,
-        totalReceipts: response.data.totalReceipts,
-        totalPages: response.data.totalPages
-      });
     } catch (error) {
-      toast.error('Failed to load receipts', {
-        icon: '❌',
-        style: {
-          borderRadius: '10px',
-          background: '#EF4444',
-          color: '#fff',
-        },
-      });
+      toast.error('Failed to load receipts');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
+  // Reset filters to current month/year
+  const resetToCurrentMonth = () => {
+    setSearchTerm('');
+    setSelectedMonth(currentMonth);
+    setSelectedYear(currentYear);
+    setSelectedStatus('all');
+    setStartDate('');
+    setEndDate('');
+    setMinAmount('');
+    setMaxAmount('');
+    setSelectedPaymentModes([]);
+    setIsVerified('all');
+    setCurrentPage(1);
+    setShowFilters(false);
   };
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     setCurrentPage(1);
-    fetchReceipts();
-  };
-
-  const handleFilterReset = () => {
-    setSearchTerm('');
-    setSelectedMonth('');
-    setSelectedYear('');
-    setSelectedStatus('all');
-    setCurrentPage(1);
-    fetchReceipts();
   };
 
   const handleDelete = async (receiptId) => {
-    if (!window.confirm('Are you sure you want to delete this receipt?')) {
-      return;
-    }
-
+    if (!window.confirm('Are you sure you want to delete this receipt?')) return;
     try {
       await api.delete(`/receipts/${receiptId}`);
-      toast.success('Receipt deleted successfully', {
-        icon: '🗑️',
-        style: {
-          borderRadius: '10px',
-          background: '#10B981',
-          color: '#fff',
-        },
-      });
+      toast.success('Receipt deleted successfully');
       fetchReceipts();
       fetchDashboardStats();
     } catch (error) {
-      toast.error('Failed to delete receipt', {
-        icon: '❌',
-      });
+      toast.error('Failed to delete receipt');
     }
   };
 
@@ -148,7 +163,6 @@ const History = () => {
       const response = await api.get(`/receipts/${receiptId}/download`, {
         responseType: 'blob',
       });
-      
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -156,49 +170,24 @@ const History = () => {
       document.body.appendChild(link);
       link.click();
       link.remove();
-      
-      toast.success('Receipt downloaded successfully', {
-        icon: '📥',
-        style: {
-          borderRadius: '10px',
-          background: '#3B82F6',
-          color: '#fff',
-        },
-      });
+      toast.success('Receipt downloaded successfully');
     } catch (error) {
-      toast.error('Failed to download receipt', {
-        icon: '❌',
-      });
+      toast.error('Failed to download receipt');
     }
   };
 
   const handleEmail = async (receiptId, tenantEmail) => {
     if (!tenantEmail) {
-      toast.error('No email address available for this tenant', {
-        icon: '📧',
-      });
+      toast.error('No email address available');
       return;
     }
-
     try {
-      await api.post('/email/send', {
-        receiptId,
-        recipientEmail: tenantEmail
-      });
-      toast.success('Receipt sent via email successfully', {
-        icon: '✉️',
-        style: {
-          borderRadius: '10px',
-          background: '#10B981',
-          color: '#fff',
-        },
-      });
+      await api.post('/email/send', { receiptId, recipientEmail: tenantEmail });
+      toast.success('Receipt sent via email successfully');
       fetchReceipts();
       fetchDashboardStats();
     } catch (error) {
-      toast.error('Failed to send email', {
-        icon: '❌',
-      });
+      toast.error('Failed to send email');
     }
   };
 
@@ -206,28 +195,27 @@ const History = () => {
     navigate(`/receipts/${receiptId}`);
   };
 
+  // --- CSV Export (respects filters) ---
   const handleExportCSV = async () => {
+    setExporting(true);
     try {
-      const response = await api.get('/receipts?limit=1000');
+      const params = buildQueryParams(false); // no pagination, limit=1000
+      const response = await api.get(`/receipts?${params.toString()}`);
       const allReceipts = response.data.receipts;
-      
+
+      if (allReceipts.length === 0) {
+        toast.error('No receipts to export with current filters');
+        setExporting(false);
+        return;
+      }
+
       const headers = [
-        'Receipt Number',
-        'Tenant Name',
-        'Tenant Email',
-        'Tenant Phone',
-        'Room Number',
-        'Month',
-        'Year',
-        'Amount (₹)',
-        'Payment Mode',
-        'Transaction ID',
-        'For Month',
-        'Created Date',
-        'Emailed Status',
-        'Verification Count'
+        'Receipt Number', 'Tenant Name', 'Tenant Email', 'Tenant Phone',
+        'Room Number', 'Month', 'Year', 'Amount (₹)', 'Payment Mode',
+        'Transaction ID', 'For Month', 'Created Date', 'Emailed Status',
+        'Verification Count', 'Balance Due'
       ];
-      
+
       const rows = allReceipts.map(receipt => [
         `"${receipt.receiptNumber || ''}"`,
         `"${receipt.tenantName || ''}"`,
@@ -236,154 +224,173 @@ const History = () => {
         `"${receipt.roomNumber || ''}"`,
         `"${receipt.month || ''}"`,
         `"${receipt.year || ''}"`,
-        `"${receipt.amountPaid || 0}"`,
+        `"${(receipt.amountPaid || 0).toFixed(2)}"`,
         `"${receipt.paymentMode || ''}"`,
         `"${receipt.transactionId || ''}"`,
         `"${receipt.forMonth || ''}"`,
         `"${new Date(receipt.createdAt).toLocaleDateString('en-IN')}"`,
         `"${receipt.sentViaEmail ? 'Yes' : 'No'}"`,
-        `"${receipt.verificationCount || 0}"`
+        `"${receipt.verificationCount || 0}"`,
+        `"${(receipt.balanceDue || 0).toFixed(2)}"`
       ]);
-      
+
       const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
-      
+
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `receipts_export_${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute('download', `receipts_export_${new Date().toISOString().slice(0,10)}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
-      toast.success('CSV exported successfully', {
-        icon: '📊',
-        style: {
-          borderRadius: '10px',
-          background: '#10B981',
-          color: '#fff',
-        },
-      });
+
+      toast.success(`Exported ${allReceipts.length} receipts successfully`);
     } catch (error) {
-      toast.error('Failed to export CSV', {
-        icon: '❌',
-      });
-      console.error('Export error:', error);
+      toast.error('Failed to export CSV');
+      console.error(error);
+    } finally {
+      setExporting(false);
     }
   };
 
-  const handlePrintReport = () => {
-    const stats = calculateStats();
-    
-    const printContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Receipts Report - ${user?.pgName || 'PG Receipts'}</title>
-        <style>
-          @media print {
-            body { font-family: Arial, sans-serif; margin: 20px; background: white; }
-            .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
-            .header h1 { margin: 0; color: #2563eb; }
-            .header p { margin: 5px 0; color: #666; }
-            .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
-            .stat-card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center; }
-            .stat-value { font-size: 24px; font-weight: bold; color: #2563eb; }
-            .stat-label { color: #666; font-size: 14px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th { background: #f3f4f6; padding: 12px; text-align: left; border: 1px solid #ddd; }
-            td { padding: 10px; border: 1px solid #ddd; }
-            .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; }
-            .status-emailed { background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 4px; }
-            .status-pending { background: #fef3c7; color: #92400e; padding: 4px 8px; border-radius: 4px; }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <h1>${user?.pgName || 'PG Receipts'} - Receipts Report</h1>
-          <p>Generated on: ${new Date().toLocaleString('en-IN')}</p>
-          <p>Total Receipts: ${stats.total}</p>
-        </div>
-        
-        <div class="stats">
-          <div class="stat-card">
-            <div class="stat-value">${stats.total}</div>
-            <div class="stat-label">Total Receipts</div>
+  // --- Print Report (respects filters) ---
+  const handlePrintReport = async () => {
+    setPrinting(true);
+    try {
+      const params = buildQueryParams(false);
+      const response = await api.get(`/receipts?${params.toString()}`);
+      const filteredReceipts = response.data.receipts;
+
+      if (filteredReceipts.length === 0) {
+        toast.error('No receipts to print with current filters');
+        setPrinting(false);
+        return;
+      }
+
+      // Calculate stats from filtered data
+      const totalAmount = filteredReceipts.reduce((sum, r) => sum + (r.amountPaid || 0), 0);
+      const emailedCount = filteredReceipts.filter(r => r.sentViaEmail).length;
+      const pendingCount = filteredReceipts.filter(r => !r.sentViaEmail && r.tenantEmail).length;
+
+      const printContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Receipts Report - ${user?.pgName || 'PG Receipts'}</title>
+          <style>
+            @media print {
+              body { font-family: Arial, sans-serif; margin: 20px; background: white; }
+              .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+              .header h1 { margin: 0; color: #2563eb; }
+              .header p { margin: 5px 0; color: #666; }
+              .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+              .stat-card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center; }
+              .stat-value { font-size: 24px; font-weight: bold; color: #2563eb; }
+              .stat-label { color: #666; font-size: 14px; }
+              table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+              th { background: #f3f4f6; padding: 12px; text-align: left; border: 1px solid #ddd; }
+              td { padding: 10px; border: 1px solid #ddd; }
+              .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; }
+              .status-emailed { background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 4px; }
+              .status-pending { background: #fef3c7; color: #92400e; padding: 4px 8px; border-radius: 4px; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>${user?.pgName || 'PG Receipts'} - Receipts Report</h1>
+            <p>Generated on: ${new Date().toLocaleString('en-IN')}</p>
+            <p>Total Receipts (filtered): ${filteredReceipts.length}</p>
+            <p>Filters applied: ${selectedMonth ? `Month: ${selectedMonth}` : ''} ${selectedYear ? `Year: ${selectedYear}` : ''} ${searchTerm ? `Search: "${searchTerm}"` : ''}</p>
           </div>
-          <div class="stat-card">
-            <div class="stat-value">${stats.thisMonth}</div>
-            <div class="stat-label">This Month</div>
+
+          <div class="stats">
+            <div class="stat-card">
+              <div class="stat-value">${filteredReceipts.length}</div>
+              <div class="stat-label">Total Receipts</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">${filteredReceipts.filter(r => {
+                const d = new Date(r.createdAt);
+                return d.getMonth() === new Date().getMonth() && d.getFullYear() === new Date().getFullYear();
+              }).length}</div>
+              <div class="stat-label">This Month</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">₹${totalAmount.toLocaleString('en-IN')}</div>
+              <div class="stat-label">Total Amount</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">${emailedCount}</div>
+              <div class="stat-label">Emailed</div>
+            </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-value">₹${stats.totalRevenue.toLocaleString('en-IN')}</div>
-            <div class="stat-label">Total Revenue</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value">${stats.emailed}</div>
-            <div class="stat-label">Emailed</div>
-          </div>
-        </div>
-        
-        <h2>Receipts List</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Receipt No</th>
-              <th>Tenant</th>
-              <th>Room</th>
-              <th>Amount</th>
-              <th>Month</th>
-              <th>Date</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${receipts.map(receipt => `
+
+          <h2>Receipts List</h2>
+          <table>
+            <thead>
               <tr>
-                <td>${receipt.receiptNumber}</td>
-                <td>${receipt.tenantName}</td>
-                <td>${receipt.roomNumber}</td>
-                <td>₹${receipt.amountPaid?.toLocaleString('en-IN') || '0'}</td>
-                <td>${receipt.forMonth}</td>
-                <td>${new Date(receipt.createdAt).toLocaleDateString('en-IN')}</td>
-                <td>
-                  <span class="${receipt.sentViaEmail ? 'status-emailed' : 'status-pending'}">
-                    ${receipt.sentViaEmail ? 'Emailed' : 'Not Emailed'}
-                  </span>
-                </td>
+                <th>Receipt No</th>
+                <th>Tenant</th>
+                <th>Room</th>
+                <th>Amount</th>
+                <th>Month</th>
+                <th>Date</th>
+                <th>Status</th>
               </tr>
-            `).join('')}
-          </tbody>
-        </table>
-        
-        <div class="footer">
-          <p>Report generated by PG Receipts System</p>
-          <p>Page 1 of 1</p>
-        </div>
-      </body>
-      </html>
-    `;
-    
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(printContent);
-    printWindow.document.close();
-    printWindow.focus();
-    
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.onafterprint = () => printWindow.close();
-    }, 500);
+            </thead>
+            <tbody>
+              ${filteredReceipts.map(receipt => `
+                <tr>
+                  <td>${receipt.receiptNumber}</td>
+                  <td>${receipt.tenantName}</td>
+                  <td>${receipt.roomNumber}</td>
+                  <td>₹${(receipt.amountPaid || 0).toLocaleString('en-IN')}</td>
+                  <td>${receipt.forMonth}</td>
+                  <td>${new Date(receipt.createdAt).toLocaleDateString('en-IN')}</td>
+                  <td>
+                    <span class="${receipt.sentViaEmail ? 'status-emailed' : 'status-pending'}">
+                      ${receipt.sentViaEmail ? 'Emailed' : 'Not Emailed'}
+                    </span>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+
+          <div class="footer">
+            <p>Report generated by PG Receipts System</p>
+            <p>Page 1 of 1</p>
+          </div>
+        </body>
+        </html>
+      `;
+
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        toast.error('Please allow popups for this site');
+        setPrinting(false);
+        return;
+      }
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.focus();
+
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.onafterprint = () => printWindow.close();
+        setPrinting(false);
+      }, 500);
+
+    } catch (error) {
+      toast.error('Failed to generate print report');
+      console.error(error);
+      setPrinting(false);
+    }
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 2,
-    }).format(amount);
-  };
-
+  // --- Helper functions ---
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
       day: 'numeric',
@@ -394,68 +401,37 @@ const History = () => {
     });
   };
 
-  const calculateStats = () => {
+  const stats = (() => {
     if (dashboardStats) {
       const stats = dashboardStats.stats;
-      const currentDate = new Date();
-      const currentMonthName = currentDate.toLocaleString('default', { month: 'long' });
-      
-      const emailed = receipts.filter(r => r.sentViaEmail === true).length;
-      const pending = receipts.filter(r => 
-        r.sentViaEmail === false && 
-        r.tenantEmail && 
-        r.tenantEmail.trim() !== ''
-      ).length;
-      
-      const emailedPercentage = receipts.length > 0 ? Math.round((emailed / receipts.length) * 100) : 0;
-      
       return {
         total: stats.totalReceipts,
         thisMonth: stats.currentMonthReceipts,
         totalRevenue: stats.currentMonthAmount,
-        thisMonthRevenue: stats.currentMonthAmount,
-        emailed,
-        pending,
-        emailedPercentage,
-        receiptChange: stats.receiptChange ? `${stats.receiptChange >= 0 ? '+' : ''}${stats.receiptChange}%` : '+12% this month',
-        revenueChange: stats.amountChange ? `${stats.amountChange >= 0 ? '+' : ''}${stats.amountChange}%` : '+8% from last month'
+        emailed: receipts.filter(r => r.sentViaEmail).length,
+        pending: receipts.filter(r => !r.sentViaEmail && r.tenantEmail).length,
+        emailedPercentage: receipts.length > 0 ? Math.round((receipts.filter(r => r.sentViaEmail).length / receipts.length) * 100) : 0,
+        receiptChange: stats.receiptChange ? `${stats.receiptChange >= 0 ? '+' : ''}${stats.receiptChange}%` : '+12%',
+        revenueChange: stats.amountChange ? `${stats.amountChange >= 0 ? '+' : ''}${stats.amountChange}%` : '+8%'
       };
     }
-
-    const currentDate = new Date();
-    const currentMonthName = currentDate.toLocaleString('default', { month: 'long' });
-    
-    const thisMonthReceipts = receipts.filter(receipt => 
-      receipt.month === currentMonthName && 
-      receipt.year === currentYear
-    );
-
-    const total = totalReceipts;
-    const thisMonth = thisMonthReceipts.length;
-    const totalRevenue = receipts.reduce((sum, r) => sum + (parseFloat(r.amountPaid) || 0), 0);
-    const thisMonthRevenue = thisMonthReceipts.reduce((sum, r) => sum + (parseFloat(r.amountPaid) || 0), 0);
-    const emailed = receipts.filter(r => r.sentViaEmail === true).length;
-    const pending = receipts.filter(r => 
-      r.sentViaEmail === false && 
-      r.tenantEmail && 
-      r.tenantEmail.trim() !== ''
-    ).length;
-    const emailedPercentage = receipts.length > 0 ? Math.round((emailed / receipts.length) * 100) : 0;
-
-    return { 
-      total,
-      thisMonth,
-      totalRevenue,
-      thisMonthRevenue,
-      emailed,
-      pending,
-      emailedPercentage,
-      receiptChange: '+12% this month',
-      revenueChange: '+8% from last month'
+    // fallback if dashboard stats not loaded
+    const filtered = receipts;
+    return {
+      total: filtered.length,
+      thisMonth: filtered.filter(r => {
+        const d = new Date(r.createdAt);
+        return d.getMonth() === new Date().getMonth() && d.getFullYear() === new Date().getFullYear();
+      }).length,
+      totalRevenue: filtered.reduce((sum, r) => sum + (r.amountPaid || 0), 0),
+      emailed: filtered.filter(r => r.sentViaEmail).length,
+      pending: filtered.filter(r => !r.sentViaEmail && r.tenantEmail).length,
+      emailedPercentage: filtered.length > 0 ? Math.round((filtered.filter(r => r.sentViaEmail).length / filtered.length) * 100) : 0,
+      receiptChange: '+0%',
+      revenueChange: '+0%'
     };
-  };
+  })();
 
-  const stats = calculateStats();
   const isOverallLoading = loading || loadingStats;
 
   return (
@@ -472,26 +448,29 @@ const History = () => {
                 Receipt History
               </h1>
             </div>
-            <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">View and manage all your generated receipts</p>
-            {dashboardStats && (
-              <div className="mt-2 flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full inline-flex">
-                <span>📊</span>
-                <span>Live stats loaded from dashboard</span>
-              </div>
-            )}
           </div>
-          
-          <button 
-            onClick={() => navigate('/receipts')}
-            className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-md flex items-center gap-2"
-          >
-            <FaFilePdf className="h-4 w-4" />
-            <span className="text-sm font-medium">New Receipt</span>
-          </button>
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={resetToCurrentMonth}
+              className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all shadow-md flex items-center gap-2 text-sm"
+              title="Reset filters to current month"
+            >
+              <FaUndo className="h-4 w-4" />
+              <span>Reset to This Month</span>
+            </button>
+            <button
+              onClick={() => navigate('/receipts')}
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-md flex items-center gap-2"
+            >
+              <FaFilePdf className="h-4 w-4" />
+              <span className="text-sm font-medium">New Receipt</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Stats Overview - Updated with accurate dashboard data */}
+      {/* Stats Cards */}
       {isOverallLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6 mb-6 md:mb-8">
           {[1, 2, 3, 4, 5].map((_, index) => (
@@ -514,48 +493,13 @@ const History = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6 mb-6 md:mb-8">
           {[
-            {
-              title: 'Total Receipts',
-              value: stats.total || 0,
-              icon: FaFilePdf,
-              color: 'from-blue-500 to-blue-600',
-              bgColor: 'bg-gradient-to-br',
-              change: stats.receiptChange
-            },
-            {
-              title: 'This Month',
-              value: stats.thisMonth || 0,
-              icon: FaCalendar,
-              color: 'from-emerald-500 to-green-500',
-              bgColor: 'bg-gradient-to-br',
-              description: `${stats.thisMonth || 0} receipts`
-            },
-            {
-              title: 'Total Revenue',
-              value: `₹${(stats.totalRevenue || 0).toLocaleString('en-IN')}`,
-              icon: FaRupeeSign,
-              color: 'from-amber-500 to-orange-500',
-              bgColor: 'bg-gradient-to-br',
-              change: stats.revenueChange
-            },
-            {
-              title: 'Emailed',
-              value: stats.emailed || 0,
-              icon: FaEnvelope,
-              color: 'from-purple-500 to-violet-500',
-              bgColor: 'bg-gradient-to-br',
-              percentage: `${stats.emailedPercentage || 0}% sent`
-            },
-            {
-              title: 'Pending',
-              value: stats.pending || 0,
-              icon: FaRegClock,
-              color: 'from-rose-500 to-pink-500',
-              bgColor: 'bg-gradient-to-br',
-              description: 'Need email'
-            }
+            { title: 'Total Receipts', value: stats.total, icon: FaFilePdf, color: 'from-blue-500 to-blue-600', change: stats.receiptChange },
+            { title: 'This Month', value: stats.thisMonth, icon: FaCalendar, color: 'from-emerald-500 to-green-500', description: `${stats.thisMonth} receipts` },
+            { title: 'Total Revenue', value: `₹${(stats.totalRevenue || 0).toLocaleString('en-IN')}`, icon: FaRupeeSign, color: 'from-amber-500 to-orange-500', change: stats.revenueChange },
+            { title: 'Emailed', value: stats.emailed, icon: FaEnvelope, color: 'from-purple-500 to-violet-500', percentage: `${stats.emailedPercentage}% sent` },
+            { title: 'Pending', value: stats.pending, icon: FaRegClock, color: 'from-rose-500 to-pink-500', description: 'Need email' }
           ].map((stat, index) => (
-            <div key={index} className={`${stat.bgColor} ${stat.color} text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-5 md:p-6`}>
+            <div key={index} className={`bg-gradient-to-br ${stat.color} text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-5 md:p-6`}>
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <p className="text-sm opacity-90 mb-1">{stat.title}</p>
@@ -566,15 +510,9 @@ const History = () => {
                 </div>
               </div>
               <div className="pt-4 border-t border-white/20">
-                {stat.change && (
-                  <span className="text-sm opacity-90">{stat.change}</span>
-                )}
-                {stat.description && (
-                  <span className="text-sm opacity-90">{stat.description}</span>
-                )}
-                {stat.percentage && (
-                  <span className="text-sm opacity-90">{stat.percentage}</span>
-                )}
+                {stat.change && <span className="text-sm opacity-90">{stat.change}</span>}
+                {stat.description && <span className="text-sm opacity-90">{stat.description}</span>}
+                {stat.percentage && <span className="text-sm opacity-90">{stat.percentage}</span>}
               </div>
             </div>
           ))}
@@ -593,91 +531,165 @@ const History = () => {
                 <input
                   type="text"
                   value={searchTerm}
-                  onChange={handleSearch}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="block w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="Search by tenant name, phone, or receipt number..."
                 />
                 <button
                   type="submit"
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-blue-600 dark:text-blue-400 font-medium text-sm"
                 >
-                  <span className="text-blue-600 dark:text-blue-400 font-medium text-sm">Search</span>
+                  Search
                 </button>
               </div>
             </form>
-            
+
             <button
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center gap-2 px-4 py-3 border-2 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
             >
               <FaFilter className="h-4 w-4" />
               <span className="text-sm font-medium">Filters</span>
+              {showFilters ? <FaChevronUp /> : <FaChevronDown />}
             </button>
           </div>
 
           {showFilters && (
             <div className="mt-6 p-5 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Month */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                    Month
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={selectedMonth}
-                      onChange={(e) => setSelectedMonth(e.target.value)}
-                      className="block w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all appearance-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    >
-                      <option value="">All Months</option>
-                      {months.map(month => (
-                        <option key={month} value={month}>{month}</option>
-                      ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                      <FaCalendar className="text-gray-400 dark:text-gray-500" />
-                    </div>
-                  </div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Month</label>
+                  <select
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  >
+                    <option value="">All Months</option>
+                    {months.map(month => (
+                      <option key={month} value={month}>{month}</option>
+                    ))}
+                  </select>
                 </div>
-                
+
+                {/* Year */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                    Year
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={selectedYear}
-                      onChange={(e) => setSelectedYear(e.target.value)}
-                      className="block w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all appearance-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    >
-                      <option value="">All Years</option>
-                      {years.map(year => (
-                        <option key={year} value={year}>{year}</option>
-                      ))}
-                    </select>
-                  </div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Year</label>
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(Number(e.target.value))}
+                    className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  >
+                    <option value="">All Years</option>
+                    {years.map(year => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
                 </div>
-                
+
+                {/* Status */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                    Status
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Status</label>
                   <select
                     value={selectedStatus}
                     onChange={(e) => setSelectedStatus(e.target.value)}
-                    className="block w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   >
-                    <option value="all">All Status</option>
+                    <option value="all">All</option>
                     <option value="emailed">Emailed</option>
                     <option value="pending">Not Emailed</option>
                   </select>
                 </div>
-                
+
+                {/* Date Range */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">From Date</label>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">To Date</label>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+
+                {/* Amount Range */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Min Amount</label>
+                  <input
+                    type="number"
+                    value={minAmount}
+                    onChange={(e) => setMinAmount(e.target.value)}
+                    placeholder="0"
+                    className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Max Amount</label>
+                  <input
+                    type="number"
+                    value={maxAmount}
+                    onChange={(e) => setMaxAmount(e.target.value)}
+                    placeholder="99999"
+                    className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+
+                {/* Payment Mode (multi-select) */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Payment Mode</label>
+                  <select
+                    multiple
+                    value={selectedPaymentModes}
+                    onChange={(e) => {
+                      const options = e.target.options;
+                      const values = [];
+                      for (let i = 0; i < options.length; i++) {
+                        if (options[i].selected) values.push(options[i].value);
+                      }
+                      setSelectedPaymentModes(values);
+                    }}
+                    className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white h-24"
+                  >
+                    <option value="cash">Cash</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="upi">UPI</option>
+                    <option value="cheque">Cheque</option>
+                    <option value="other">Other</option>
+                  </select>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Hold Ctrl (Cmd) to select multiple</p>
+                </div>
+
+                {/* Verification Status */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Verification</label>
+                  <select
+                    value={isVerified}
+                    onChange={(e) => setIsVerified(e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  >
+                    <option value="all">All</option>
+                    <option value="true">Verified</option>
+                    <option value="false">Not Verified</option>
+                  </select>
+                </div>
+
+                {/* Clear filters button */}
                 <div className="flex items-end">
                   <button
-                    onClick={handleFilterReset}
-                    className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all font-medium"
+                    onClick={resetToCurrentMonth}
+                    className="w-full px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all font-medium flex items-center justify-center gap-2"
                   >
-                    Clear Filters
+                    <FaTimes className="h-4 w-4" />
+                    Reset to Current Month
                   </button>
                 </div>
               </div>
@@ -693,23 +705,27 @@ const History = () => {
             <div>
               <h3 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white">All Receipts</h3>
               <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
-                Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalReceipts)} of {totalReceipts} receipts
+                Showing {receipts.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0} to {Math.min(currentPage * itemsPerPage, totalReceipts)} of {totalReceipts} receipts
+                {selectedMonth && ` · Month: ${selectedMonth}`}
+                {selectedYear && ` · Year: ${selectedYear}`}
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={handleExportCSV}
-                className="flex items-center gap-2 px-4 py-3 border-2 border-emerald-600 text-emerald-600 dark:border-emerald-500 dark:text-emerald-400 rounded-xl hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all"
+                disabled={exporting}
+                className="flex items-center gap-2 px-4 py-3 border-2 border-emerald-600 text-emerald-600 dark:border-emerald-500 dark:text-emerald-400 rounded-xl hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all disabled:opacity-50"
               >
-                <FaDownload className="h-4 w-4" />
-                <span className="text-sm font-medium">Export CSV</span>
+                {exporting ? <Loader size="small" /> : <FaDownload className="h-4 w-4" />}
+                <span className="text-sm font-medium">{exporting ? 'Exporting...' : 'Export CSV'}</span>
               </button>
               <button
                 onClick={handlePrintReport}
-                className="flex items-center gap-2 px-4 py-3 border-2 border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-400 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all"
+                disabled={printing}
+                className="flex items-center gap-2 px-4 py-3 border-2 border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-400 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all disabled:opacity-50"
               >
-                <FaPrint className="h-4 w-4" />
-                <span className="text-sm font-medium">Print Report</span>
+                {printing ? <Loader size="small" /> : <FaPrint className="h-4 w-4" />}
+                <span className="text-sm font-medium">{printing ? 'Loading...' : 'Print Report'}</span>
               </button>
             </div>
           </div>
@@ -728,23 +744,22 @@ const History = () => {
               <FaFilePdf className="h-12 w-12 text-gray-400 dark:text-gray-500" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              {searchTerm || selectedMonth || selectedYear || selectedStatus !== 'all' 
-                ? 'No matching receipts found' 
+              {searchTerm || selectedMonth || selectedYear || selectedStatus !== 'all' || startDate || endDate || minAmount || maxAmount || selectedPaymentModes.length > 0 || isVerified !== 'all'
+                ? 'No matching receipts found'
                 : 'No receipts generated yet'}
             </h3>
             <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto mb-6">
-              {searchTerm || selectedMonth || selectedYear || selectedStatus !== 'all'
-                ? 'Try adjusting your search or filters to find what you\'re looking for'
-                : 'Create your first receipt to start managing payments'
-              }
+              {searchTerm || selectedMonth || selectedYear || selectedStatus !== 'all' || startDate || endDate || minAmount || maxAmount || selectedPaymentModes.length > 0 || isVerified !== 'all'
+                ? 'Try adjusting your filters to see more results'
+                : 'Create your first receipt to start managing payments'}
             </p>
-            <div className="flex gap-3 justify-center">
-              {(searchTerm || selectedMonth || selectedYear || selectedStatus !== 'all') && (
+            <div className="flex gap-3 justify-center flex-wrap">
+              {(searchTerm || selectedMonth || selectedYear || selectedStatus !== 'all' || startDate || endDate || minAmount || maxAmount || selectedPaymentModes.length > 0 || isVerified !== 'all') && (
                 <button
-                  onClick={handleFilterReset}
+                  onClick={resetToCurrentMonth}
                   className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-md"
                 >
-                  Clear Filters
+                  Reset to Current Month
                 </button>
               )}
               <button
@@ -770,8 +785,8 @@ const History = () => {
                 </thead>
                 <tbody>
                   {receipts.map((receipt) => (
-                    <tr 
-                      key={receipt._id} 
+                    <tr
+                      key={receipt._id}
                       className="border-b border-gray-100 dark:border-gray-700 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-colors duration-150 group"
                     >
                       <td className="p-4">
@@ -781,12 +796,10 @@ const History = () => {
                           </div>
                           <div>
                             <p className="font-bold text-blue-600 dark:text-blue-400 text-sm">{receipt.receiptNumber}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                              Room {receipt.roomNumber}
-                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Room {receipt.roomNumber}</p>
                           </div>
                         </div>
-                       </td>
+                      </td>
                       <td className="p-4">
                         <div>
                           <p className="font-medium text-gray-900 dark:text-white text-sm">{receipt.tenantName}</p>
@@ -795,7 +808,7 @@ const History = () => {
                             <p className="text-sm text-blue-600 dark:text-blue-400 truncate max-w-xs">{receipt.tenantEmail}</p>
                           )}
                         </div>
-                       </td>
+                      </td>
                       <td className="p-4">
                         <div>
                           <p className="font-bold text-green-600 dark:text-green-400 text-sm">
@@ -805,7 +818,7 @@ const History = () => {
                             {receipt.forMonth}
                           </p>
                         </div>
-                       </td>
+                      </td>
                       <td className="p-4">
                         <div className="space-y-2">
                           <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
@@ -832,9 +845,9 @@ const History = () => {
                             )}
                           </div>
                         </div>
-                        </td>
+                      </td>
                       <td className="p-4">
-                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-wrap">
                           <button
                             onClick={() => handleEdit(receipt._id)}
                             className="p-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-800/50 transition-colors"
@@ -842,7 +855,6 @@ const History = () => {
                           >
                             <FaEdit className="h-4 w-4" />
                           </button>
-                          
                           <button
                             onClick={() => handleViewDetails(receipt._id)}
                             className="p-2 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-lg hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors"
@@ -850,7 +862,6 @@ const History = () => {
                           >
                             <FaEye className="h-4 w-4" />
                           </button>
-                          
                           <button
                             onClick={() => handleDownload(receipt._id, receipt.receiptNumber)}
                             className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800/50 transition-colors"
@@ -858,7 +869,6 @@ const History = () => {
                           >
                             <FaDownload className="h-4 w-4" />
                           </button>
-                          
                           {receipt.tenantEmail && (
                             <button
                               onClick={() => handleEmail(receipt._id, receipt.tenantEmail)}
@@ -868,7 +878,6 @@ const History = () => {
                               <FaEnvelope className="h-4 w-4" />
                             </button>
                           )}
-                          
                           <button
                             onClick={() => handleDelete(receipt._id)}
                             className="p-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-800/50 transition-colors"
@@ -877,7 +886,7 @@ const History = () => {
                             <FaTrash className="h-4 w-4" />
                           </button>
                         </div>
-                        </td>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -892,7 +901,7 @@ const History = () => {
                   <span className="mx-2">•</span>
                   <span>{totalReceipts} total receipts</span>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
@@ -901,7 +910,7 @@ const History = () => {
                   >
                     <FaChevronLeft className="h-4 w-4 text-gray-700 dark:text-gray-300" />
                   </button>
-                  
+
                   <div className="flex gap-1">
                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                       let pageNum;
@@ -914,7 +923,6 @@ const History = () => {
                       } else {
                         pageNum = currentPage - 2 + i;
                       }
-                      
                       return (
                         <button
                           key={pageNum}
@@ -930,7 +938,7 @@ const History = () => {
                       );
                     })}
                   </div>
-                  
+
                   <button
                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                     disabled={currentPage === totalPages}
@@ -961,13 +969,13 @@ const History = () => {
                 <FaHistory className="text-blue-600 dark:text-blue-400" />
               </div>
               <p className="text-sm text-gray-700 dark:text-gray-300">
-                {stats.thisMonth || 0} receipts created this month
+                {stats.thisMonth} receipts created this month
               </p>
               <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
-                {stats.emailed || 0} emails sent successfully (from current page)
+                {stats.emitted} emails sent (from current page)
               </p>
             </div>
-            
+
             <div className="p-4 bg-gradient-to-br from-emerald-50 to-green-100 dark:from-emerald-900/20 dark:to-green-800/20 rounded-xl">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="font-medium text-emerald-800 dark:text-emerald-400">Revenue Insights</h4>
@@ -980,7 +988,7 @@ const History = () => {
                 Average per receipt: ₹{Math.round((stats.totalRevenue || 0) / Math.max(stats.total || 1, 1)).toLocaleString('en-IN')}
               </p>
             </div>
-            
+
             <div className="p-4 bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-800/20 rounded-xl">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="font-medium text-amber-800 dark:text-amber-400">Action Required</h4>
@@ -1016,12 +1024,9 @@ const History = () => {
       {/* Footer */}
       <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
         <div className="text-center text-gray-500 dark:text-gray-400 text-sm">
-          <p>History dashboard last updated • {new Date().toLocaleString('en-IN', {
-            hour: '2-digit',
-            minute: '2-digit'
-          })}</p>
+          <p>History dashboard last updated • {new Date().toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit' })}</p>
           <p className="mt-1">
-            Need help with receipts? 
+            Need help with receipts?
             <a href="/help" className="text-blue-600 dark:text-blue-400 hover:underline ml-1">View documentation</a>
           </p>
         </div>
